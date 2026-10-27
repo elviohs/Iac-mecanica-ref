@@ -431,7 +431,6 @@ select:focus, input:focus {
   <a href="#materiales">Materiales</a>
   <a href="#tornillos">Tornillos DIN 912</a>
   <a href="#tolerancias">Tolerancias ISO 286</a>
-  <a href="#calculos">Cálculos</a>
 </nav>
 
 <!-- ═══════════════════════════════════════════════ -->
@@ -441,21 +440,6 @@ select:focus, input:focus {
   <div class="sec-header">
     <span class="sec-num">01</span>
     <span class="sec-title">Materiales</span>
-  </div>
-
-  <!-- IAC ANSYS Database card -->
-  <div class="card db-card">
-    <div class="card-title">📦 Librería ANSYS — IAC Mecánica</div>
-    <p style="font-size:0.9rem;color:var(--fg2);margin-bottom:0.5rem;">
-      Base de datos de materiales del departamento para ANSYS Engineering Data.
-      Contiene <strong>38 materiales</strong> con propiedades mecánicas, térmicas y criogénicas.
-    </p>
-    <div class="db-path">I:\Departamentos\Mecánica\1_Información\1_Bibliografía\02_Ansys\Materiales_ANSYS_DEPMEC\</div>
-    <div class="db-meta">
-      <span class="db-tag">Formato: .xml (ANSYS Engineering Data)</span>
-      <span class="db-tag">38 materiales</span>
-      <span class="db-tag">Red interna IAC</span>
-    </div>
   </div>
 
   <!-- CRYO CALCULATOR -->
@@ -498,30 +482,6 @@ select:focus, input:focus {
     <div id="cryo-result"><div class="result-placeholder">Selecciona un material e introduce la temperatura</div></div>
   </div>
 
-  <!-- External links -->
-  <div class="card-title" style="margin-top:1.5rem;margin-bottom:0.75rem;">🔗 Recursos externos</div>
-  <div class="links-grid">
-    <a class="link-card" href="https://www.matweb.com" target="_blank">
-      <span class="link-card-title">MatWeb</span>
-      <span class="link-card-desc">Base de datos de propiedades de materiales</span>
-      <span class="link-card-url">matweb.com</span>
-    </a>
-    <a class="link-card" href="https://outgassing.nasa.gov" target="_blank">
-      <span class="link-card-title">NASA Outgassing</span>
-      <span class="link-card-desc">Datos de desgasificación para aplicaciones espaciales</span>
-      <span class="link-card-url">outgassing.nasa.gov</span>
-    </a>
-    <a class="link-card" href="https://gestion.iac.es/certificados" target="_blank">
-      <span class="link-card-title">Certificados IAC</span>
-      <span class="link-card-desc">Certificados de materiales internos del IAC</span>
-      <span class="link-card-url">gestion.iac.es/certificados</span>
-    </a>
-    <a class="link-card" href="https://trc.nist.gov/cryogenics/materials/materialproperties.htm" target="_blank">
-      <span class="link-card-title">NIST Cryogenics</span>
-      <span class="link-card-desc">Propiedades criogénicas de materiales — fuente de los polinomios usados en la calculadora</span>
-      <span class="link-card-url">trc.nist.gov/cryogenics</span>
-    </a>
-  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════ -->
@@ -638,28 +598,6 @@ select:focus, input:focus {
     </div>
     <button class="btn-calc" onclick="calcTolerance()">Calcular ajuste</button>
     <div id="tol-result"><div class="result-placeholder">Introduce diámetro y selecciona tolerancias</div></div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════ -->
-<!-- SECTION 4 — CÁLCULOS                           -->
-<!-- ═══════════════════════════════════════════════ -->
-<section id="calculos">
-  <div class="sec-header">
-    <span class="sec-num">04</span>
-    <span class="sec-title">Cálculos</span>
-  </div>
-  <div class="links-grid">
-    <a class="link-card" href="https://www.vinksda.com/toolkit-mechanical-calculations/hertz-contact-stress/" target="_blank">
-      <span class="link-card-title">Tensiones de Hertz</span>
-      <span class="link-card-desc">Calculadora de contacto hertziano — tensiones de contacto entre sólidos</span>
-      <span class="link-card-url">vinksda.com</span>
-    </a>
-    <a class="link-card" href="https://www.jpe-innovations.com/precision-point/" target="_blank">
-      <span class="link-card-title">JPE Precision Point</span>
-      <span class="link-card-desc">Ingeniería de precisión — guías de diseño y calculadoras</span>
-      <span class="link-card-url">jpe-innovations.com/precision-point</span>
-    </a>
   </div>
 </section>
 
