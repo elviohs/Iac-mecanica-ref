@@ -1,0 +1,1119 @@
+<title>Referencia Técnica · IAC Mecánica</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap">
+<style>
+:root {
+  --bg: #f4f6fb;
+  --bg2: #ffffff;
+  --bg3: #eef2f9;
+  --fg: #1a1f36;
+  --fg2: #4a5272;
+  --fg3: #8892b0;
+  --blue-dark: #0d3d77;
+  --blue: #2678d4;
+  --blue-light: #e6eefb;
+  --blue-mid: #b8d0f5;
+  --success: #0e7a4e;
+  --success-bg: #e6f4ee;
+  --warn: #9a5200;
+  --warn-bg: #fff5e6;
+  --border: #dce3f0;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'Inter', system-ui, sans-serif;
+  --radius: 10px;
+  --shadow: 0 2px 12px rgba(13,61,119,0.10);
+  --shadow2: 0 4px 24px rgba(13,61,119,0.15);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1220;
+    --bg2: #161c2e;
+    --bg3: #1c2438;
+    --fg: #e2e8f8;
+    --fg2: #9aa8cc;
+    --fg3: #5a6888;
+    --blue-dark: #4a9cf0;
+    --blue: #6ab0fa;
+    --blue-light: #0f1e38;
+    --blue-mid: #1d3860;
+    --success: #34c984;
+    --success-bg: #0a2418;
+    --warn: #f5a623;
+    --warn-bg: #1e1400;
+    --border: #243052;
+    --shadow: 0 2px 12px rgba(0,0,0,0.40);
+    --shadow2: 0 4px 24px rgba(0,0,0,0.50);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1220; --bg2: #161c2e; --bg3: #1c2438;
+  --fg: #e2e8f8; --fg2: #9aa8cc; --fg3: #5a6888;
+  --blue-dark: #4a9cf0; --blue: #6ab0fa; --blue-light: #0f1e38; --blue-mid: #1d3860;
+  --success: #34c984; --success-bg: #0a2418; --warn: #f5a623; --warn-bg: #1e1400;
+  --border: #243052; --shadow: 0 2px 12px rgba(0,0,0,0.40); --shadow2: 0 4px 24px rgba(0,0,0,0.50);
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 3rem;
+}
+/* ── HERO ─────────────────────────────────────── */
+.hero {
+  background: #0d3d77;
+  color: #fff;
+  margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  padding: 3rem max(2rem, env(safe-area-inset-left, 0px));
+  margin-bottom: 0;
+}
+.hero-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.65;
+  margin-bottom: 0.75rem;
+}
+.hero h1 {
+  font-family: var(--mono);
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+.hero p {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  opacity: 0.7;
+  letter-spacing: 0.05em;
+}
+/* ── SECTION NAV ──────────────────────────────── */
+.sec-nav {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  padding: 0 max(1rem, env(safe-area-inset-left, 0px));
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: var(--shadow);
+}
+.sec-nav::-webkit-scrollbar { display: none; }
+.sec-nav a {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--fg2);
+  text-decoration: none;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+.sec-nav a:hover { color: var(--blue); border-bottom-color: var(--blue); }
+/* ── SECTIONS ─────────────────────────────────── */
+section {
+  margin-top: 2.5rem;
+}
+.sec-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+.sec-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue);
+  background: var(--blue-light);
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+.sec-title {
+  font-family: var(--mono);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--fg);
+}
+/* ── CARDS ────────────────────────────────────── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow);
+}
+.card-title {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--blue);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 1rem;
+}
+/* ── IAC DATABASE CARD ──────────────────────────*/
+.db-card {
+  background: var(--blue-light);
+  border: 1.5px solid var(--blue-mid);
+  border-left: 4px solid var(--blue);
+}
+.db-path {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--fg2);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 1rem;
+  margin: 0.5rem 0;
+  word-break: break-all;
+}
+.db-meta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+.db-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg2);
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.2rem 0.55rem;
+}
+/* ── CALCULATOR LAYOUT ──────────────────────────*/
+.calc-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+.form-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+select, input[type="number"], input[type="text"] {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  color: var(--fg);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.55rem 0.8rem;
+  width: 100%;
+  appearance: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+select:focus, input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(38, 120, 212, 0.15);
+}
+.btn-calc {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--blue);
+  border: none;
+  border-radius: 6px;
+  padding: 0.65rem 1.5rem;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.btn-calc:hover { background: #1a5cb8; }
+.btn-calc:active { transform: scale(0.97); }
+/* ── RESULTS ─────────────────────────────────── */
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.result-cell {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+}
+.result-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--fg3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.35rem;
+}
+.result-value {
+  font-family: var(--mono);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--fg);
+  line-height: 1.1;
+}
+.result-unit {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--fg3);
+  font-weight: 400;
+  margin-left: 0.2em;
+}
+.result-na { color: var(--fg3); font-weight: 400; font-size: 0.9rem; }
+.result-section-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--blue);
+  margin: 1rem 0 0.5rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border);
+}
+.result-warn {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--warn);
+  background: var(--warn-bg);
+  border: 1px solid var(--warn);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.75rem;
+}
+/* ── FIT BADGE ────────────────────────────────── */
+.fit-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  margin-top: 0.25rem;
+}
+.fit-clearance { background: #e6f4ee; color: #0e7a4e; }
+.fit-interference { background: #fde8e8; color: #a31515; }
+.fit-transition { background: #fff5e6; color: #9a5200; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .fit-clearance { background: #0a2418; color: #34c984; }
+  :root:not([data-theme="light"]) .fit-interference { background: #2a0a0a; color: #f87171; }
+  :root:not([data-theme="light"]) .fit-transition { background: #1e1400; color: #f5a623; }
+}
+:root[data-theme="dark"] .fit-clearance { background: #0a2418; color: #34c984; }
+:root[data-theme="dark"] .fit-interference { background: #2a0a0a; color: #f87171; }
+:root[data-theme="dark"] .fit-transition { background: #1e1400; color: #f5a623; }
+/* ── BOLT TABLE ───────────────────────────────── */
+.bolt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 13px;
+  margin-top: 0.5rem;
+}
+.bolt-table th {
+  background: var(--blue-light);
+  color: var(--blue);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.5rem 0.7rem;
+  text-align: left;
+  border-bottom: 2px solid var(--blue-mid);
+  font-weight: 700;
+}
+.bolt-table td {
+  padding: 0.5rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--fg);
+}
+.bolt-table tr:last-child td { border-bottom: none; }
+.bolt-table tr:nth-child(even) td { background: var(--bg3); }
+.bolt-table .val { font-weight: 600; }
+/* ── LINKS GRID ──────────────────────────────── */
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+.link-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--blue);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  text-decoration: none;
+  color: var(--fg);
+  transition: border-left-color 0.15s, box-shadow 0.15s, transform 0.1s;
+  box-shadow: var(--shadow);
+}
+.link-card:hover { border-left-color: var(--blue-dark); box-shadow: var(--shadow2); transform: translateY(-1px); }
+.link-card-title { font-family: var(--mono); font-size: 0.85rem; font-weight: 700; color: var(--blue); }
+.link-card-desc { font-size: 0.8rem; color: var(--fg2); }
+.link-card-url { font-family: var(--mono); font-size: 0.7rem; color: var(--fg3); margin-top: 0.25rem; }
+/* ── DIVIDER ─────────────────────────────────── */
+.divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
+/* ── PLACEHOLDER (hidden by default) ─────────── */
+.result-placeholder {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--fg3);
+  font-family: var(--mono);
+  font-size: 13px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  margin-top: 0.5rem;
+}
+/* ── FOOTER ──────────────────────────────────── */
+.page-footer {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--fg3);
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+/* ── RESPONSIVE ──────────────────────────────── */
+@media (max-width: 600px) {
+  .calc-form { grid-template-columns: 1fr 1fr; }
+  .result-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 400px) {
+  .calc-form { grid-template-columns: 1fr; }
+  .result-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-badge">IAC — Departamento de Mecánica</div>
+  <h1>Referencia Técnica</h1>
+  <p>Materiales · Tornillos DIN 912 · Tolerancias ISO 286</p>
+</header>
+
+<!-- SECTION NAV -->
+<nav class="sec-nav">
+  <a href="#materiales">Materiales</a>
+  <a href="#tornillos">Tornillos DIN 912</a>
+  <a href="#tolerancias">Tolerancias ISO 286</a>
+  <a href="#calculos">Cálculos</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION 1 — MATERIALES                         -->
+<!-- ═══════════════════════════════════════════════ -->
+<section id="materiales">
+  <div class="sec-header">
+    <span class="sec-num">01</span>
+    <span class="sec-title">Materiales</span>
+  </div>
+
+  <!-- IAC ANSYS Database card -->
+  <div class="card db-card">
+    <div class="card-title">📦 Librería ANSYS — IAC Mecánica</div>
+    <p style="font-size:0.9rem;color:var(--fg2);margin-bottom:0.5rem;">
+      Base de datos de materiales del departamento para ANSYS Engineering Data.
+      Contiene <strong>38 materiales</strong> con propiedades mecánicas, térmicas y criogénicas.
+    </p>
+    <div class="db-path">I:\Departamentos\Mecánica\1_Información\1_Bibliografía\02_Ansys\Materiales_ANSYS_DEPMEC\</div>
+    <div class="db-meta">
+      <span class="db-tag">Formato: .xml (ANSYS Engineering Data)</span>
+      <span class="db-tag">38 materiales</span>
+      <span class="db-tag">Red interna IAC</span>
+    </div>
+  </div>
+
+  <!-- CRYO CALCULATOR -->
+  <div class="card">
+    <div class="card-title">🌡 Calculadora Propiedades Criogénicas</div>
+    <p style="font-size:0.85rem;color:var(--fg2);margin-bottom:1rem;">
+      Polinomios NIST. Introduce el material y la temperatura de trabajo (T).<br>
+      Los resultados de <strong>K</strong> y <strong>S</strong> son las propiedades
+      <strong>integradas desde 298 K (ambiente) hasta T</strong> — útiles para calcular
+      cargas térmicas (Q/A·L = ∫K dT) y entalpía de enfriamiento (ΔH = ∫S dT).
+      <strong>ΔL</strong> es la contracción relativa integrada desde 293 K.
+      <strong>E</strong> es el módulo de Young puntual a la temperatura seleccionada.
+    </p>
+    <div class="calc-form">
+      <div class="form-group" style="grid-column: span 2;">
+        <label class="form-label">Material</label>
+        <select id="cryo-mat">
+          <option value="Al">Al 6061-T6</option>
+          <option value="SS304">AISI 304 / 304L</option>
+          <option value="SS316">AISI 316</option>
+          <option value="CuBe">CuBe (Cobre-Berilio)</option>
+          <option value="G10W">G-10 Warp</option>
+          <option value="G10N">G-10 Normal</option>
+          <option value="In">Indio (In)</option>
+          <option value="Invar">Invar (Fe-36Ni)</option>
+          <option value="PTFE">Teflón (PTFE)</option>
+          <option value="Ti">Ti-6Al-4V</option>
+          <option value="Apiezon">Apiezon N</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Temperatura T [K]</label>
+        <input type="number" id="cryo-T" value="77" min="1" max="400" step="1">
+      </div>
+      <div class="form-group" style="justify-content: flex-end;">
+        <label class="form-label">&nbsp;</label>
+        <button class="btn-calc" onclick="calcCryo()">Calcular</button>
+      </div>
+    </div>
+    <div id="cryo-result"><div class="result-placeholder">Selecciona un material e introduce la temperatura</div></div>
+  </div>
+
+  <!-- External links -->
+  <div class="card-title" style="margin-top:1.5rem;margin-bottom:0.75rem;">🔗 Recursos externos</div>
+  <div class="links-grid">
+    <a class="link-card" href="https://www.matweb.com" target="_blank">
+      <span class="link-card-title">MatWeb</span>
+      <span class="link-card-desc">Base de datos de propiedades de materiales</span>
+      <span class="link-card-url">matweb.com</span>
+    </a>
+    <a class="link-card" href="https://outgassing.nasa.gov" target="_blank">
+      <span class="link-card-title">NASA Outgassing</span>
+      <span class="link-card-desc">Datos de desgasificación para aplicaciones espaciales</span>
+      <span class="link-card-url">outgassing.nasa.gov</span>
+    </a>
+    <a class="link-card" href="https://gestion.iac.es/certificados" target="_blank">
+      <span class="link-card-title">Certificados IAC</span>
+      <span class="link-card-desc">Certificados de materiales internos del IAC</span>
+      <span class="link-card-url">gestion.iac.es/certificados</span>
+    </a>
+    <a class="link-card" href="https://trc.nist.gov/cryogenics/materials/materialproperties.htm" target="_blank">
+      <span class="link-card-title">NIST Cryogenics</span>
+      <span class="link-card-desc">Propiedades criogénicas de materiales — fuente de los polinomios usados en la calculadora</span>
+      <span class="link-card-url">trc.nist.gov/cryogenics</span>
+    </a>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION 2 — TORNILLOS DIN 912                  -->
+<!-- ═══════════════════════════════════════════════ -->
+<section id="tornillos">
+  <div class="sec-header">
+    <span class="sec-num">02</span>
+    <span class="sec-title">Tornillos Allen DIN 912</span>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔩 Dimensiones y fuerzas</div>
+    <div class="calc-form">
+      <div class="form-group">
+        <label class="form-label">Métrica</label>
+        <select id="bolt-size">
+          <option>M3</option><option>M4</option><option>M5</option>
+          <option>M6</option><option>M8</option><option selected>M10</option>
+          <option>M12</option><option>M14</option><option>M16</option>
+          <option>M18</option><option>M20</option><option>M22</option>
+          <option>M24</option><option>M27</option><option>M30</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Clase de material</label>
+        <select id="bolt-class">
+          <option value="5.6">5.6</option>
+          <option value="6.5">6.5</option>
+          <option value="8.8" selected>8.8</option>
+          <option value="10.9">10.9</option>
+          <option value="12.9">12.9</option>
+        </select>
+      </div>
+      <div class="form-group" style="justify-content:flex-end;">
+        <label class="form-label">&nbsp;</label>
+        <button class="btn-calc" onclick="calcBolt()">Calcular</button>
+      </div>
+    </div>
+    <div id="bolt-result"><div class="result-placeholder">Selecciona métrica y clase de material</div></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION 3 — TOLERANCIAS ISO 286                -->
+<!-- ═══════════════════════════════════════════════ -->
+<section id="tolerancias">
+  <div class="sec-header">
+    <span class="sec-num">03</span>
+    <span class="sec-title">Tolerancias ISO 286</span>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📐 Ajuste agujero-eje</div>
+    <p style="font-size:0.85rem;color:var(--fg2);margin-bottom:1rem;">
+      Calcula desviaciones fundamentales según ISO 286-1. Introduce el diámetro nominal y
+      selecciona la letra de tolerancia y el grado IT para agujero y eje.
+    </p>
+    <div class="calc-form" style="grid-template-columns: repeat(auto-fit, minmax(140px,1fr));">
+      <div class="form-group" style="grid-column:span 2;">
+        <label class="form-label">Diámetro nominal D [mm]</label>
+        <input type="number" id="tol-D" value="25" min="0" max="500" step="0.1" placeholder="p.ej. 25">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+      <div>
+        <div class="result-section-title" style="border:none;margin-bottom:0.6rem;">Agujero (Hole)</div>
+        <div style="display:flex;gap:0.5rem;">
+          <div class="form-group" style="flex:1;">
+            <label class="form-label">Letra</label>
+            <select id="tol-hole-letter">
+              <option>A</option><option>B</option><option>C</option><option>D</option>
+              <option>E</option><option>F</option><option>G</option><option selected>H</option>
+              <option>JS</option><option>K</option><option>M</option><option>N</option>
+              <option>P</option><option>R</option><option>S</option><option>U</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label class="form-label">Grado IT</label>
+            <select id="tol-hole-it">
+              <option>IT1</option><option>IT2</option><option>IT3</option><option>IT4</option>
+              <option>IT5</option><option>IT6</option><option selected>IT7</option>
+              <option>IT8</option><option>IT9</option><option>IT10</option>
+              <option>IT11</option><option>IT12</option><option>IT13</option>
+              <option>IT14</option><option>IT15</option><option>IT16</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="result-section-title" style="border:none;margin-bottom:0.6rem;">Eje (Shaft)</div>
+        <div style="display:flex;gap:0.5rem;">
+          <div class="form-group" style="flex:1;">
+            <label class="form-label">Letra</label>
+            <select id="tol-shaft-letter">
+              <option>a</option><option>b</option><option>c</option><option>d</option>
+              <option>e</option><option>f</option><option>g</option><option selected>h</option>
+              <option>js</option><option>k</option><option>m</option><option>n</option>
+              <option>p</option><option>r</option><option>s</option><option>u</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label class="form-label">Grado IT</label>
+            <select id="tol-shaft-it">
+              <option>IT1</option><option>IT2</option><option>IT3</option><option>IT4</option>
+              <option>IT5</option><option>IT6</option><option selected>IT6</option>
+              <option>IT7</option><option>IT8</option><option>IT9</option><option>IT10</option>
+              <option>IT11</option><option>IT12</option><option>IT13</option>
+              <option>IT14</option><option>IT15</option><option>IT16</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-calc" onclick="calcTolerance()">Calcular ajuste</button>
+    <div id="tol-result"><div class="result-placeholder">Introduce diámetro y selecciona tolerancias</div></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION 4 — CÁLCULOS                           -->
+<!-- ═══════════════════════════════════════════════ -->
+<section id="calculos">
+  <div class="sec-header">
+    <span class="sec-num">04</span>
+    <span class="sec-title">Cálculos</span>
+  </div>
+  <div class="links-grid">
+    <a class="link-card" href="https://www.vinksda.com/toolkit-mechanical-calculations/hertz-contact-stress/" target="_blank">
+      <span class="link-card-title">Tensiones de Hertz</span>
+      <span class="link-card-desc">Calculadora de contacto hertziano — tensiones de contacto entre sólidos</span>
+      <span class="link-card-url">vinksda.com</span>
+    </a>
+    <a class="link-card" href="https://www.jpe-innovations.com/precision-point/" target="_blank">
+      <span class="link-card-title">JPE Precision Point</span>
+      <span class="link-card-desc">Ingeniería de precisión — guías de diseño y calculadoras</span>
+      <span class="link-card-url">jpe-innovations.com/precision-point</span>
+    </a>
+  </div>
+</section>
+
+<footer class="page-footer">
+  IAC · Departamento de Mecánica — Referencia Técnica Interna
+</footer>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- JAVASCRIPT                                      -->
+<!-- ═══════════════════════════════════════════════ -->
+<script>
+/* ────────────────────────────────────────────────
+   CRYO DATA
+   ──────────────────────────────────────────────── */
+const CRYO = {
+  Al: {
+    name: 'Al 6061-T6',
+    K:  { type:'log10', c:[0.07981,1.0957,-0.07277,0.08084,0.02803,-0.09464,0.04179,-0.00571,0], range:[4,300] },
+    S:  { type:'log10', c:[46.6467,-314.292,866.662,-1298.3,1162.27,-637.795,210.351,-38.3094,2.96344], range:[4,300] },
+    dL: { type:'poly',  c:[-412.77,-0.30389,0.0087696,-9.9821e-6,0], scale:1e-5, range:[18,300] },
+    E:  { type:'poly',  c:[77.71221,0.01030646,-0.00029241,8.9936e-7,-1.0709e-9], range:[2,295] }
+  },
+  SS304: {
+    name: 'AISI 304 / 304L',
+    K:  { type:'log10', c:[-1.4087,1.3982,0.2543,-0.626,0.2334,0.4256,-0.4658,0.165,-0.0199], range:[1,300] },
+    S:  { type:'log10', c:[22.0061,-127.5528,303.647,-381.0098,274.0328,-112.9212,24.7593,-2.239153,0], range:[4,300] },
+    dL: { type:'poly',  c:[-295.54,-0.39811,0.0092683,-2.0261e-5,1.7127e-8], scale:1e-5, range:[4,300] },
+    E:  { type:'poly',  c:[210.0593,0.1534883,-0.00161739,5.11706e-6,-6.1546e-9], range:[57,293] }
+  },
+  SS316: {
+    name: 'AISI 316',
+    K:  { type:'log10', c:[-1.4087,1.3982,0.2543,-0.626,0.2334,0.4256,-0.4658,0.165,-0.0199], range:[1,300] },
+    S:  { type:'log10', c:[-1879.464,3643.198,76.70125,-6176.028,7437.6247,-4305.7217,1382.4627,-237.22704,17.05262], range:[50,300] },
+    dL: { type:'poly',  c:[-295.54,-0.39811,0.0092683,-2.0261e-5,1.7127e-8], scale:1e-5, range:[4,300] },
+    E:  { type:'poly',  c:[207.9488,0.07394241,-0.00096272,2.84556e-6,-3.2408e-9], range:[50,294] }
+  },
+  CuBe: {
+    name: 'CuBe (Cu-Be)',
+    K:  { type:'log10', c:[-0.50015,1.9319,-1.6954,0.71218,1.2788,-1.6145,0.68722,-0.10501,0], range:[4,120] },
+    S:  null,
+    dL: { type:'poly',  c:[-311.5,-0.44498,0.010133,-2.4718e-5,2.6277e-8], scale:1e-5, range:[24,300] },
+    E:  { type:'2pt',   T1:77, V1:128.82, T2:293, V2:118.82 }
+  },
+  G10W: {
+    name: 'G-10 Warp',
+    K:  { type:'log10', c:[-2.64827,8.80228,-24.8998,41.1625,-39.8754,23.1778,-7.95635,1.48806,-0.11701], range:[12,300] },
+    S:  { type:'log10', c:[-2.4083,7.6006,-8.2982,7.3301,-4.2386,1.4294,-0.24396,0.015236,0], range:[4,300] },
+    dL: { type:'poly',  c:[-246.9,0.2064,0.003072,-3.226e-6,0], scale:1e-5, range:[12,300] },
+    E:  { type:'2pt',   T1:77, V1:33.04, T2:293, V2:27.13 }
+  },
+  G10N: {
+    name: 'G-10 Normal',
+    K:  { type:'log10', c:[-4.1236,13.788,-26.068,26.272,-14.663,4.4954,-0.6905,0.0397,0], range:[10,300] },
+    S:  { type:'log10', c:[-2.4083,7.6006,-8.2982,7.3301,-4.2386,1.4294,-0.24396,0.015236,0], range:[4,300] },
+    dL: { type:'poly',  c:[-719.8,0.4455,0.007505,-2.219e-6,0], scale:1e-5, range:[10,300] },
+    E:  { type:'2pt',   T1:77, V1:26.28, T2:293, V2:22.14 }
+  },
+  In: {
+    name: 'Indio (In)',
+    K:  { type:'log10', c:[-2.4259351,12.613611,-46.472893,104.64717,-127.1863,88.805612,-35.915625,7.8307989,-0.71218931], range:[4,295] },
+    S:  null,
+    dL: { type:'poly',  c:[-52.65,0.1009,0.0008395,-1.973e-6,8.794e-11], scale:1e-5, range:[80,300] },
+    E:  { type:'poly',  c:[141.565,0.0254435,-0.00100842,6.72797e-6,-1.0823e-8], range:[3,298] }
+  },
+  Invar: {
+    name: 'Invar (Fe-36Ni)',
+    K:  { type:'log10', c:[-2.7064,8.5191,-15.923,18.276,-11.9116,4.40318,-0.86018,0.068508,0], range:[4,300] },
+    S:  { type:'log10', c:[31.88256,-166.51949,352.01879,-393.44232,259.98072,-104.61429,24.99276,-3.20792,0.16503], range:[4,300] },
+    dL: { type:'poly',  c:[-2120,-0.8201,0.06161,-0.0003171,6.85e-7], scale:1e-5, range:[4,300] },
+    E:  { type:'2pt',   T1:20, V1:4.1, T2:300, V2:0.7 }
+  },
+  PTFE: {
+    name: 'Teflón (PTFE)',
+    K:  { type:'log10', c:[2.738,-30.677,89.43,-136.99,124.69,-69.556,23.32,-4.3135,0.33829], range:[4,300] },
+    S:  null,
+    dL: { type:'poly',  c:[-171.1,-0.214,0.004807,-7.111e-6,0], scale:1e-5, range:[24,300] },
+    E:  null
+  },
+  Ti: {
+    name: 'Ti-6Al-4V',
+    K:  { type:'log10', c:[-5107.8774,19240.422,-30789.064,27134.756,-14226.379,4438.2154,-763.07767,55.796592,0], range:[20,300] },
+    S:  null,
+    dL: null,
+    E:  { type:'2pt',   T1:77, V1:121.53, T2:293, V2:112.06 }
+  },
+  Apiezon: {
+    name: 'Apiezon N',
+    K:  { type:'2pt',   T1:4, V1:0.095, T2:293, V2:0.194 },
+    S:  { type:'log10', c:[-1.61975,3.10923,-0.712719,4.93675,-9.37993,7.58304,-3.11048,0.628309,-0.0482634], range:[2,200] },
+    dL: null,
+    E:  null
+  }
+};
+
+function evalLog10Poly(T, coeffs) {
+  const lt = Math.log10(T);
+  let lr = 0;
+  for (let i = 0; i < coeffs.length; i++) lr += coeffs[i] * Math.pow(lt, i);
+  return Math.pow(10, lr);
+}
+function evalPoly(T, coeffs) {
+  let r = 0;
+  for (let i = 0; i < coeffs.length; i++) r += coeffs[i] * Math.pow(T, i);
+  return r;
+}
+function eval2pt(T, T1, V1, T2, V2) {
+  if (T <= T1) return V1;
+  if (T >= T2) return V2;
+  return V1 + (V2 - V1) * (T - T1) / (T2 - T1);
+}
+function evalProp(prop, T) {
+  if (!prop) return null;
+  const {type, c, range, scale, T1, V1, T2, V2} = prop;
+  const warn = range && (T < range[0] || T > range[1]);
+  let val = null;
+  if (type === 'log10') val = evalLog10Poly(T, c);
+  else if (type === 'poly') val = evalPoly(T, c) * (scale || 1);
+  else if (type === '2pt') val = eval2pt(T, T1, V1, T2, V2);
+  return { val, warn, range };
+}
+
+function fmtVal(v, digits) {
+  if (v === null || v === undefined || isNaN(v)) return null;
+  const abs = Math.abs(v);
+  if (abs === 0) return '0';
+  if (abs >= 100) return v.toFixed(1);
+  if (abs >= 10) return v.toFixed(2);
+  if (abs >= 1) return v.toFixed(3);
+  if (abs >= 0.01) return v.toExponential(3);
+  return v.toExponential(3);
+}
+
+/* Integración trapezoidal de una propiedad desde T_lo hasta T_hi */
+function integrateNumeric(prop, T_lo, T_hi) {
+  if (!prop || T_lo >= T_hi) return { val: null, warn: false, range: prop ? prop.range : null };
+  const nSteps = 400;
+  const h = (T_hi - T_lo) / nSteps;
+  let sum = 0, anyWarn = false;
+  for (let i = 0; i <= nSteps; i++) {
+    const t = T_lo + i * h;
+    const r = evalProp(prop, t);
+    if (r && r.val !== null && isFinite(r.val)) {
+      sum += ((i === 0 || i === nSteps) ? 0.5 : 1) * r.val;
+      if (r.warn) anyWarn = true;
+    }
+  }
+  return { val: sum * h, warn: anyWarn, range: prop.range };
+}
+
+function calcCryo() {
+  const matKey = document.getElementById('cryo-mat').value;
+  const T = parseFloat(document.getElementById('cryo-T').value);
+  const mat = CRYO[matKey];
+  if (!mat || isNaN(T) || T <= 0) return;
+
+  const T_ref = 298; // temperatura ambiente de referencia
+  const T_lo  = Math.min(T, T_ref);
+  const T_hi  = Math.max(T, T_ref);
+
+  const Kint = mat.K  ? integrateNumeric(mat.K,  T_lo, T_hi) : null;
+  const Sint = mat.S  ? integrateNumeric(mat.S,  T_lo, T_hi) : null;
+  const dL   = evalProp(mat.dL, T);
+  const E    = evalProp(mat.E,  T);
+
+  const rangeDir = T <= T_ref
+    ? `${T} K → 298 K`
+    : `298 K → ${T} K`;
+
+  const cells = [
+    { label:'∫K dT — Cond. térmica integral', unit:'W/m',   res: Kint,
+      sub: `Integral 298 K→T | Q/A·L = ∫K dT` },
+    { label:'∫S dT — Entalpía ΔH',            unit:'J/kg',  res: Sint,
+      sub: `Energía de enfriamiento por kg` },
+    { label:'ΔL/L — Contracción térmica',      unit:'m/m',  res: dL,
+      sub: `Integrada desde 293 K hasta ${T} K` },
+    { label:'E — Módulo de Young',              unit:'GPa',  res: E,
+      sub: `Valor puntual a ${T} K` }
+  ];
+
+  let html = `<div class="result-section-title">${mat.name} — Integración ${rangeDir}</div>`;
+  html += '<div class="result-grid">';
+  cells.forEach(({label, unit, res, sub}) => {
+    let valHtml, warnNote = '';
+    if (!res || res.val === null || res.val === undefined) {
+      valHtml = '<span class="result-na">N/D</span>';
+    } else {
+      const fv = fmtVal(res.val);
+      valHtml = `${fv}<span class="result-unit">${unit}</span>`;
+      if (res.warn) {
+        warnNote = `⚠ T parcialmente fuera del rango polinomial`;
+      }
+    }
+    html += `<div class="result-cell">
+      <div class="result-label">${label}</div>
+      <div class="result-value">${valHtml}</div>
+      <div style="font-family:var(--sans);font-size:10px;color:var(--fg3);margin-top:0.25rem;line-height:1.3;">${sub}</div>
+      ${warnNote ? `<div style="font-family:var(--mono);font-size:10px;color:var(--warn);margin-top:0.2rem;">${warnNote}</div>` : ''}
+    </div>`;
+  });
+  html += '</div>';
+
+  document.getElementById('cryo-result').innerHTML = html;
+}
+
+/* ────────────────────────────────────────────────
+   BOLT DATA — DIN 912
+   ──────────────────────────────────────────────── */
+const BOLTS = {
+  M3:  { paso:0.5,  de:2.94, dp:2.68, dn:2.39, dr:2.53, An:4.48,  Ar:5.03,  D:5.5, allen:2.5, ll:5.5,  h:2.4,  f:{'5.6':[150,111,0.06],'6.5':[156,111,0.06],'8.8':[321,230,0.12],'10.9':[402,322,0.17],'12.9':[482,387,0.20]} },
+  M4:  { paso:0.7,  de:3.85, dp:3.55, dn:3.14, dr:3.34, An:7.75,  Ar:8.78,  D:7,   allen:3,   ll:7,    h:3.2,  f:{'5.6':[260,195,0.15],'6.5':[272,195,0.15],'8.8':[560,390,0.29],'10.9':[790,545,0.41],'12.9':[950,655,0.49]} },
+  M5:  { paso:0.8,  de:4.87, dp:4.48, dn:4.02, dr:4.25, An:12.69, Ar:14.19, D:8.5, allen:4,   ll:9,    h:4,    f:{'5.6':[420,320,0.30],'6.5':[440,320,0.30],'8.8':[910,635,0.60],'10.9':[1280,895,0.85],'12.9':[1530,1070,1.00]} },
+  M6:  { paso:1,    de:5.88, dp:5.35, dn:4.73, dr:5.04, An:17.59, Ar:19.97, D:10,  allen:5,   ll:10,   h:5,    f:{'5.6':[600,450,0.50],'6.5':[620,450,0.50],'8.8':[1290,900,1.00],'10.9':[1810,1260,1.40],'12.9':[2170,1510,1.70]} },
+  M8:  { paso:1.25, de:7.80, dp:7.19, dn:6.47, dr:6.83, An:32.84, Ar:36.61, D:13,  allen:6,   ll:13,   h:6.5,  f:{'5.6':[1090,820,1.25],'6.5':[1135,820,1.25],'8.8':[2340,1650,2.50],'10.9':[3290,2320,3.50],'12.9':[3950,2790,4.10]} },
+  M10: { paso:1.5,  de:9.78, dp:9.03, dn:8.16, dr:8.59, An:52.31, Ar:58.00, D:16,  allen:8,   ll:17,   h:8,    f:{'5.6':[1740,1310,2.45],'6.5':[1798,1310,2.45],'8.8':[3710,2620,4.90],'10.9':[5200,3690,6.90],'12.9':[6250,4430,8.30]} },
+  M12: { paso:1.75, de:11.80,dp:10.86,dn:9.85, dr:10.36,An:76.25, Ar:84.26, D:18,  allen:10,  ll:19,   h:9.5,  f:{'5.6':[2530,1900,4.20],'6.5':[2612,1900,4.20],'8.8':[5400,3830,8.60],'10.9':[7600,5400,12.0],'12.9':[9100,6450,14.5]} },
+  M14: { paso:2,    de:13.80,dp:12.70,dn:11.55,dr:12.12,An:104.70,Ar:115.44,D:21,  allen:12,  ll:22,   h:11,   f:{'5.6':[3450,2600,6.80],'6.5':[3578,2600,6.80],'8.8':[7350,5250,13.5],'10.9':[10350,7400,19.0],'12.9':[12400,8850,23.0]} },
+  M16: { paso:2,    de:15.78,dp:14.70,dn:13.55,dr:14.12,An:144.12,Ar:156.67,D:24,  allen:14,  ll:24,   h:13,   f:{'5.6':[4710,3550,10.5],'6.5':[4856,3550,10.5],'8.8':[10000,7300,21.0],'10.9':[14100,10200,29.5],'12.9':[17000,12300,35.5]} },
+  M18: { paso:2.5,  de:17.78,dp:16.38,dn:14.93,dr:15.65,An:175.14,Ar:192.47,D:27,  allen:14,  ll:27,   h:15,   f:{'5.6':[5760,4320,14.5],'6.5':[5966,4320,14.5],'8.8':[12300,8800,29.0],'10.9':[17300,12400,40.5],'12.9':[20700,14800,48.5]} },
+  M20: { paso:2.5,  de:19.76,dp:18.38,dn:16.93,dr:17.65,An:225.19,Ar:244.79,D:30,  allen:17,  ll:30,   h:16,   f:{'5.6':[7350,5500,20.0],'6.5':[7590,5500,20.0],'8.8':[15700,11400,41.0],'10.9':[22000,16000,58.0],'12.9':[26500,19200,69.0]} },
+  M22: { paso:2.5,  de:21.76,dp:20.38,dn:18.93,dr:19.65,An:281.53,Ar:303.40,D:33,  allen:17,  ll:32,   h:17,   f:{'5.6':[9090,6800,26.5],'6.5':[9400,6800,26.5],'8.8':[19400,14100,55.0],'10.9':[27300,19900,78.0],'12.9':[32700,23900,93.0]} },
+  M24: { paso:3,    de:23.76,dp:22.05,dn:20.32,dr:21.19,An:324.26,Ar:352.49,D:36,  allen:19,  ll:36,   h:18,   f:{'5.6':[10590,7900,34.5],'6.5':[10930,7900,34.5],'8.8':[22600,16400,71.0],'10.9':[31800,23000,100.0],'12.9':[38100,27600,120.0]} },
+  M27: { paso:3,    de:26.70,dp:25.05,dn:23.32,dr:24.19,An:427.08,Ar:459.39,D:40,  allen:19,  ll:41,   h:20,   f:{'5.6':[13770,10300,51.0],'6.5':[14240,10300,51.0],'8.8':[29400,21500,105.0],'10.9':[41300,30200,150.0],'12.9':[49600,36300,180.0]} },
+  M30: { paso:3.5,  de:29.70,dp:27.73,dn:25.71,dr:26.72,An:518.99,Ar:560.59,D:45,  allen:22,  ll:46,   h:22,   f:{'5.6':[16830,12600,68.0],'6.5':[17380,12600,68.0],'8.8':[35900,26200,145.0],'10.9':[50500,36800,200.0],'12.9':[60600,44200,240.0]} }
+};
+
+function calcBolt() {
+  const size = document.getElementById('bolt-size').value;
+  const cls  = document.getElementById('bolt-class').value;
+  const b = BOLTS[size];
+  if (!b) return;
+  const [Rt, Fv, Pa] = b.f[cls];
+  const Rc = Math.round(Rt * 0.57);
+
+  document.getElementById('bolt-result').innerHTML = `
+    <div class="result-section-title">Dimensiones — ${size} · Clase ${cls}</div>
+    <div class="result-grid" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));">
+      <div class="result-cell"><div class="result-label">Paso P</div><div class="result-value">${b.paso}<span class="result-unit">mm</span></div></div>
+      <div class="result-cell"><div class="result-label">⌀ Exterior d<sub>e</sub></div><div class="result-value">${b.de}<span class="result-unit">mm</span></div></div>
+      <div class="result-cell"><div class="result-label">⌀ Paso d<sub>p</sub></div><div class="result-value">${b.dp}<span class="result-unit">mm</span></div></div>
+      <div class="result-cell"><div class="result-label">⌀ Núcleo d<sub>n</sub></div><div class="result-value">${b.dn}<span class="result-unit">mm</span></div></div>
+      <div class="result-cell"><div class="result-label">⌀ Resistente d<sub>r</sub></div><div class="result-value">${b.dr}<span class="result-unit">mm</span></div></div>
+      <div class="result-cell"><div class="result-label">Área núcleo A<sub>n</sub></div><div class="result-value">${b.An}<span class="result-unit">mm²</span></div></div>
+      <div class="result-cell"><div class="result-label">Área resist. A<sub>r</sub></div><div class="result-value">${b.Ar}<span class="result-unit">mm²</span></div></div>
+      <div class="result-cell"><div class="result-label">⌀ Cabeza D</div><div class="result-value">${b.D}<span class="result-unit">mm</span></div></div>
+      <div class="result-cell"><div class="result-label">Llave Allen</div><div class="result-value">${b.allen}<span class="result-unit">mm</span></div></div>
+      <div class="result-cell"><div class="result-label">Llave Tuerca</div><div class="result-value">${b.ll}<span class="result-unit">mm</span></div></div>
+      <div class="result-cell"><div class="result-label">Altura Tuerca</div><div class="result-value">${b.h}<span class="result-unit">mm</span></div></div>
+    </div>
+    <div class="result-section-title" style="margin-top:1.25rem;">Fuerzas — ${size} · Clase ${cls}</div>
+    <div class="result-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));">
+      <div class="result-cell"><div class="result-label">R<sub>t</sub> — Carga de rotura</div><div class="result-value">${Rt.toLocaleString('es')}<span class="result-unit">kg</span></div></div>
+      <div class="result-cell"><div class="result-label">R<sub>c</sub> — Cortante (×0.57)</div><div class="result-value">${Rc.toLocaleString('es')}<span class="result-unit">kg</span></div></div>
+      <div class="result-cell"><div class="result-label">F<sub>v</sub> — Carga de vástago</div><div class="result-value">${Fv.toLocaleString('es')}<span class="result-unit">kg</span></div></div>
+      <div class="result-cell"><div class="result-label">P<sub>a</sub> — Par de apriete</div><div class="result-value">${Pa}<span class="result-unit">kg·m</span></div></div>
+    </div>`;
+}
+
+/* ────────────────────────────────────────────────
+   ISO 286 TOLERANCE
+   ──────────────────────────────────────────────── */
+// IT values [µm] for 13 size ranges (D ≤3, 3-6, 6-10, 10-18, 18-30, 30-50, 50-80, 80-120, 120-180, 180-250, 250-315, 315-400, 400-500)
+const IT = {
+  IT1:  [0.8,1,1,1.2,1.5,1.5,2,2.5,3.5,4.5,6,7,8],
+  IT2:  [1.2,1.5,1.5,2,2.5,2.5,3,4,5,7,8,9,10],
+  IT3:  [2,2.5,2.5,3,4,4,5,6,8,10,12,13,15],
+  IT4:  [3,4,4,5,6,7,8,10,12,14,16,18,20],
+  IT5:  [4,5,6,8,9,11,13,15,18,20,23,25,27],
+  IT6:  [6,8,9,11,13,16,19,22,25,29,32,36,40],
+  IT7:  [10,12,15,18,21,25,30,35,40,46,52,57,63],
+  IT8:  [14,18,22,27,33,39,46,54,63,72,81,89,97],
+  IT9:  [25,30,36,43,52,62,74,87,100,115,130,140,155],
+  IT10: [40,48,58,70,84,100,120,140,160,185,210,230,250],
+  IT11: [60,75,90,110,130,160,190,220,250,290,320,360,400],
+  IT12: [100,120,150,180,210,250,300,350,400,460,520,570,630],
+  IT13: [140,180,220,270,330,390,460,540,630,720,810,890,970],
+  IT14: [250,300,360,430,520,620,740,870,1000,1150,1300,1400,1550],
+  IT15: [400,480,580,700,840,1000,1200,1400,1600,1850,2100,2300,2500],
+  IT16: [600,750,900,1100,1300,1600,1900,2200,2500,2900,3200,3600,4000]
+};
+const SIZE_RANGES = [[0,3],[3,6],[6,10],[10,18],[18,30],[30,50],[50,80],[80,120],[120,180],[180,250],[250,315],[315,400],[400,500]];
+
+// Tabulated lower deviations ei [µm] for shaft above-zero letters
+const SHAFT_EI_TAB = {
+  k: [0,1,1,1,2,2,2,3,4,4,4,4,5],
+  m: [2,4,6,7,8,9,11,13,15,17,20,21,23],
+  n: [4,8,10,12,15,17,20,23,27,31,34,37,40],
+  p: [6,12,15,18,22,26,32,37,43,50,56,62,68],
+  r: [10,15,19,23,28,34,41,51,63,77,94,108,126],
+  s: [14,19,23,28,35,42,53,71,98,125,152,181,214],
+  u: [18,23,28,33,41,51,66,91,128,168,218,270,330]
+};
+
+function getRangeIdx(D) {
+  for (let i = 0; i < SIZE_RANGES.length; i++) {
+    const [lo, hi] = SIZE_RANGES[i];
+    if (D > lo && D <= hi) return i;
+  }
+  return -1;
+}
+function getGeomMean(idx) {
+  const [lo, hi] = SIZE_RANGES[idx];
+  return Math.sqrt(Math.max(lo, 1) * hi);
+}
+// Returns shaft upper deviation es [µm] for letters a-h (formula-based)
+function shaftEs(letter, D) {
+  const l = letter.toLowerCase();
+  switch(l) {
+    case 'a': return D <= 120 ? -(265 + 1.3*D) : -(3.5*D);
+    case 'b': return D <= 160 ? -(140 + 0.85*D) : -(1.8*D);
+    case 'c': return -(52 * Math.pow(D, 0.2));
+    case 'd': return -(16 * Math.pow(D, 0.44));
+    case 'e': return -(11 * Math.pow(D, 0.41));
+    case 'f': return -(5.5 * Math.pow(D, 0.41));
+    case 'g': return -(2.5 * Math.pow(D, 0.34));
+    case 'h': return 0;
+    default:  return null;
+  }
+}
+
+function calcTolerance() {
+  const D = parseFloat(document.getElementById('tol-D').value);
+  const hLetter = document.getElementById('tol-hole-letter').value;
+  const hIT     = document.getElementById('tol-hole-it').value;
+  const sLetter = document.getElementById('tol-shaft-letter').value;
+  const sIT     = document.getElementById('tol-shaft-it').value;
+
+  if (isNaN(D) || D <= 0 || D > 500) {
+    document.getElementById('tol-result').innerHTML = '<div class="result-warn">⚠ Introduce un diámetro entre 0 y 500 mm</div>';
+    return;
+  }
+
+  const idx = getRangeIdx(D);
+  if (idx < 0) {
+    document.getElementById('tol-result').innerHTML = '<div class="result-warn">⚠ Diámetro fuera del rango ISO 286 (0–500 mm)</div>';
+    return;
+  }
+  const Dmean = getGeomMean(idx);
+  const [Dlo, Dhi] = SIZE_RANGES[idx];
+
+  const itHval = IT[hIT][idx]; // IT value for hole [µm]
+  const itSval = IT[sIT][idx]; // IT value for shaft [µm]
+
+  // ── SHAFT deviations ──────────────────────────
+  let shaft_ei, shaft_es;
+  const sl = sLetter.toLowerCase();
+  if (['a','b','c','d','e','f','g','h'].includes(sl)) {
+    shaft_es = Math.round(shaftEs(sl, Dmean));
+    shaft_ei = shaft_es - itSval;
+  } else if (sl === 'js') {
+    shaft_ei = -Math.round(itSval / 2);
+    shaft_es = Math.round(itSval / 2);
+  } else if (SHAFT_EI_TAB[sl]) {
+    shaft_ei = SHAFT_EI_TAB[sl][idx];
+    shaft_es = shaft_ei + itSval;
+  } else {
+    document.getElementById('tol-result').innerHTML = '<div class="result-warn">⚠ Letra de eje no soportada en este rango</div>';
+    return;
+  }
+
+  // ── HOLE deviations ──────────────────────────
+  let hole_EI, hole_ES;
+  const hl = hLetter.toUpperCase();
+  const hLetterLow = hl.toLowerCase();
+  if (['A','B','C','D','E','F','G','H'].includes(hl)) {
+    if (hl === 'H') {
+      hole_EI = 0;
+    } else {
+      // EI = -es(equivalent shaft)
+      const eqEs = Math.round(shaftEs(hLetterLow, Dmean));
+      hole_EI = -eqEs; // positive, since es is negative for a-g
+    }
+    hole_ES = hole_EI + itHval;
+  } else if (hl === 'JS') {
+    hole_EI = -Math.round(itHval / 2);
+    hole_ES = Math.round(itHval / 2);
+  } else {
+    // K, M, N, P, R, S, U: ES = -ei_shaft (negative)
+    const eqLow = hLetterLow;
+    if (SHAFT_EI_TAB[eqLow]) {
+      const eqEi = SHAFT_EI_TAB[eqLow][idx];
+      hole_ES = -eqEi; // negative
+      hole_EI = hole_ES - itHval;
+    } else {
+      document.getElementById('tol-result').innerHTML = '<div class="result-warn">⚠ Letra de agujero no soportada</div>';
+      return;
+    }
+  }
+
+  // ── Fit type ──────────────────────────────────
+  // Clearance: min hole (D+EI) > max shaft (D+es) → EI > es
+  // Interference: max hole (D+ES) < min shaft (D+ei) → ES < ei
+  let fitType, fitClass, juego1, juego2, fitLabel;
+  if (hole_EI >= shaft_es) {
+    fitType = 'Holgura'; fitClass = 'fit-clearance';
+    juego1 = hole_EI - shaft_es; // min clearance
+    juego2 = hole_ES - shaft_ei; // max clearance
+    fitLabel = `Holgura mín: ${juego1} µm · Holgura máx: ${juego2} µm`;
+  } else if (hole_ES <= shaft_ei) {
+    fitType = 'Apriete'; fitClass = 'fit-interference';
+    juego1 = shaft_ei - hole_ES; // min interference
+    juego2 = shaft_es - hole_EI; // max interference
+    fitLabel = `Apriete mín: ${juego1} µm · Apriete máx: ${juego2} µm`;
+  } else {
+    fitType = 'Incertidumbre'; fitClass = 'fit-transition';
+    const holgMax = hole_ES - shaft_ei;
+    const apreMax = shaft_es - hole_EI;
+    fitLabel = `Holgura máx: ${holgMax} µm · Apriete máx: ${apreMax} µm`;
+  }
+
+  function sgn(v) { return v >= 0 ? '+' : ''; }
+
+  document.getElementById('tol-result').innerHTML = `
+    <div class="result-section-title">Rango ISO: D = ${D} mm → ${Dlo < 1 ? '≤' : Dlo + ' <'} D ≤ ${Dhi} mm</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:0.75rem;">
+      <div>
+        <div class="result-section-title" style="border:none;margin-bottom:0.5rem;margin-top:0">Agujero: ${hLetter}${hIT}</div>
+        <div class="result-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="result-cell">
+            <div class="result-label">EI (desv. inf.)</div>
+            <div class="result-value">${sgn(hole_EI)}${hole_EI}<span class="result-unit">µm</span></div>
+          </div>
+          <div class="result-cell">
+            <div class="result-label">ES (desv. sup.)</div>
+            <div class="result-value">${sgn(hole_ES)}${hole_ES}<span class="result-unit">µm</span></div>
+          </div>
+        </div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--fg3);margin-top:0.4rem;">
+          Tolerancia IT: ${itHval} µm<br>
+          ⌀ mín: ${D.toFixed(3)} ${hole_EI >= 0 ? '+' : ''}${(hole_EI/1000).toFixed(3)} mm · máx: ${(D + hole_ES/1000).toFixed(3)} mm
+        </div>
+      </div>
+      <div>
+        <div class="result-section-title" style="border:none;margin-bottom:0.5rem;margin-top:0">Eje: ${sLetter}${sIT}</div>
+        <div class="result-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="result-cell">
+            <div class="result-label">ei (desv. inf.)</div>
+            <div class="result-value">${sgn(shaft_ei)}${shaft_ei}<span class="result-unit">µm</span></div>
+          </div>
+          <div class="result-cell">
+            <div class="result-label">es (desv. sup.)</div>
+            <div class="result-value">${sgn(shaft_es)}${shaft_es}<span class="result-unit">µm</span></div>
+          </div>
+        </div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--fg3);margin-top:0.4rem;">
+          Tolerancia IT: ${itSval} µm<br>
+          ⌀ mín: ${(D + shaft_ei/1000).toFixed(3)} mm · máx: ${(D + shaft_es/1000).toFixed(3)} mm
+        </div>
+      </div>
+    </div>
+    <div class="result-section-title">Tipo de ajuste: ${hLetter}${hIT}/${sLetter}${sIT}</div>
+    <div class="fit-badge ${fitClass}">${fitType}</div>
+    <div style="font-family:var(--mono);font-size:12px;color:var(--fg2);margin-top:0.5rem;">${fitLabel}</div>`;
+}
+
+// Auto-calculate on load defaults
+calcBolt();
+</script>
