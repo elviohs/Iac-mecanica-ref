@@ -423,7 +423,7 @@ select:focus, input:focus {
 <header class="hero">
   <div class="hero-badge">IAC — Departamento de Mecánica</div>
   <h1>Referencia Técnica</h1>
-  <p>Materiales · Tornillos DIN 912 · Tolerancias ISO 286</p>
+  <p>Materiales · Tornillos DIN 912 · Tolerancias ISO 286 · Juntas Tóricas</p>
 </header>
 
 <!-- SECTION NAV -->
@@ -431,6 +431,7 @@ select:focus, input:focus {
   <a href="#materiales">Materiales</a>
   <a href="#tornillos">Tornillos DIN 912</a>
   <a href="#tolerancias">Tolerancias ISO 286</a>
+  <a href="#orings">Juntas Tóricas</a>
 </nav>
 
 <!-- ═══════════════════════════════════════════════ -->
@@ -598,6 +599,47 @@ select:focus, input:focus {
     </div>
     <button class="btn-calc" onclick="calcTolerance()">Calcular ajuste</button>
     <div id="tol-result"><div class="result-placeholder">Introduce diámetro y selecciona tolerancias</div></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION 4 — JUNTAS TÓRICAS                     -->
+<!-- ═══════════════════════════════════════════════ -->
+<section id="orings">
+  <div class="sec-header">
+    <span class="sec-num">04</span>
+    <span class="sec-title">Juntas Tóricas — Parker Serie 2-XXX</span>
+  </div>
+
+  <div class="card">
+    <div class="card-title">⭕ Selección y alojamiento</div>
+    <p style="font-size:0.85rem;color:var(--fg2);margin-bottom:1rem;">
+      Catálogo Parker Hannifin Serie Standard 2-XXX. Introduce el ancho de sección <strong>W</strong>
+      y el diámetro interior del alojamiento <strong>D<sub>int</sub></strong>. Se selecciona el O-Ring
+      con DI &nbsp;≥&nbsp;D<sub>int</sub> más próximo y se calculan las dimensiones del alojamiento
+      según tabla Parker.
+    </p>
+    <div class="calc-form">
+      <div class="form-group">
+        <label class="form-label">Sección W [mm]</label>
+        <select id="or-W">
+          <option value="1.78">W = 1.78 mm</option>
+          <option value="2.62">W = 2.62 mm</option>
+          <option value="3.53" selected>W = 3.53 mm</option>
+          <option value="5.33">W = 5.33 mm</option>
+          <option value="6.99">W = 6.99 mm</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">D<sub>int</sub> alojamiento [mm]</label>
+        <input type="number" id="or-Dint" value="25" min="0" max="700" step="0.01" placeholder="p.ej. 25">
+      </div>
+      <div class="form-group" style="justify-content:flex-end;">
+        <label class="form-label">&nbsp;</label>
+        <button class="btn-calc" onclick="calcOring()">Calcular</button>
+      </div>
+    </div>
+    <div id="or-result"><div class="result-placeholder">Selecciona W e introduce D<sub>int</sub></div></div>
   </div>
 </section>
 
@@ -823,6 +865,25 @@ const BOLTS = {
   M30: { paso:3.5,  de:29.70,dp:27.73,dn:25.71,dr:26.72,An:518.99,Ar:560.59,D:45,  allen:22,  ll:46,   h:22,   f:{'5.6':[16830,12600,68.0],'6.5':[17380,12600,68.0],'8.8':[35900,26200,145.0],'10.9':[50500,36800,200.0],'12.9':[60600,44200,240.0]} }
 };
 
+/* DIN 125, DIN 9021, DIN 934  [d1, d2, h] / [s, m] */
+const BOLT_STD = {
+  M3:  { d125:[3.2,7,0.5],   d9021:[3.2,9,0.8],   d934:[5.5,2.4] },
+  M4:  { d125:[4.3,9,0.8],   d9021:[4.3,12,1.0],  d934:[7,3.2] },
+  M5:  { d125:[5.3,10,1.0],  d9021:[5.3,15,1.2],  d934:[8,4.0] },
+  M6:  { d125:[6.4,12,1.6],  d9021:[6.4,18,1.6],  d934:[10,5.0] },
+  M8:  { d125:[8.4,16,1.6],  d9021:[8.4,24,2.0],  d934:[13,6.5] },
+  M10: { d125:[10.5,20,2.0], d9021:[10.5,30,2.5], d934:[17,8.0] },
+  M12: { d125:[13,24,2.5],   d9021:[13,37,3.0],   d934:[19,10.0] },
+  M14: { d125:[15,28,2.5],   d9021:[15,44,3.0],   d934:[22,11.0] },
+  M16: { d125:[17,30,3.0],   d9021:[17,50,3.0],   d934:[24,13.0] },
+  M18: { d125:[19,34,3.0],   d9021:[19,56,3.0],   d934:[27,15.0] },
+  M20: { d125:[21,37,3.0],   d9021:[21,60,4.0],   d934:[30,16.0] },
+  M22: { d125:[23,39,3.0],   d9021:[23,66,4.0],   d934:[32,18.0] },
+  M24: { d125:[25,44,4.0],   d9021:[25,72,4.0],   d934:[36,19.0] },
+  M27: { d125:[28,50,4.0],   d9021:[28,85,4.0],   d934:[41,22.0] },
+  M30: { d125:[31,56,4.0],   d9021:[31,90,4.0],   d934:[46,24.0] }
+};
+
 function calcBolt() {
   const size = document.getElementById('bolt-size').value;
   const cls  = document.getElementById('bolt-class').value;
@@ -830,6 +891,7 @@ function calcBolt() {
   if (!b) return;
   const [Rt, Fv, Pa] = b.f[cls];
   const Rc = Math.round(Rt * 0.57);
+  const bs = BOLT_STD[size] || null;
 
   document.getElementById('bolt-result').innerHTML = `
     <div class="result-section-title">Dimensiones — ${size} · Clase ${cls}</div>
@@ -852,7 +914,25 @@ function calcBolt() {
       <div class="result-cell"><div class="result-label">R<sub>c</sub> — Cortante (×0.57)</div><div class="result-value">${Rc.toLocaleString('es')}<span class="result-unit">kg</span></div></div>
       <div class="result-cell"><div class="result-label">F<sub>v</sub> — Carga de vástago</div><div class="result-value">${Fv.toLocaleString('es')}<span class="result-unit">kg</span></div></div>
       <div class="result-cell"><div class="result-label">P<sub>a</sub> — Par de apriete</div><div class="result-value">${Pa}<span class="result-unit">kg·m</span></div></div>
-    </div>`;
+    </div>
+    ${bs ? `
+    <div class="result-section-title" style="margin-top:1.25rem;">Arandela DIN 125 — ${size}</div>
+    <div class="result-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">
+      <div class="result-cell"><div class="result-label">⌀ int. d₁</div><div class="result-value">${bs.d125[0]}<span class="result-unit">mm</span></div></div>
+      <div class="result-cell"><div class="result-label">⌀ ext. d₂</div><div class="result-value">${bs.d125[1]}<span class="result-unit">mm</span></div></div>
+      <div class="result-cell"><div class="result-label">Espesor h</div><div class="result-value">${bs.d125[2]}<span class="result-unit">mm</span></div></div>
+    </div>
+    <div class="result-section-title" style="margin-top:1rem;">Arandela DIN 9021 (ancha) — ${size}</div>
+    <div class="result-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">
+      <div class="result-cell"><div class="result-label">⌀ int. d₁</div><div class="result-value">${bs.d9021[0]}<span class="result-unit">mm</span></div></div>
+      <div class="result-cell"><div class="result-label">⌀ ext. d₂</div><div class="result-value">${bs.d9021[1]}<span class="result-unit">mm</span></div></div>
+      <div class="result-cell"><div class="result-label">Espesor h</div><div class="result-value">${bs.d9021[2]}<span class="result-unit">mm</span></div></div>
+    </div>
+    <div class="result-section-title" style="margin-top:1rem;">Tuerca hexagonal DIN 934 — ${size}</div>
+    <div class="result-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">
+      <div class="result-cell"><div class="result-label">Llave s</div><div class="result-value">${bs.d934[0]}<span class="result-unit">mm</span></div></div>
+      <div class="result-cell"><div class="result-label">Altura m</div><div class="result-value">${bs.d934[1]}<span class="result-unit">mm</span></div></div>
+    </div>` : ''}`;
 }
 
 /* ────────────────────────────────────────────────
@@ -1054,4 +1134,165 @@ function calcTolerance() {
 
 // Auto-calculate on load defaults
 calcBolt();
+
+/* ────────────────────────────────────────────────
+   O-RING DATA — Parker Serie Standard 2-XXX
+   Housing design table: [L_static_min, G, R_mean]
+   ──────────────────────────────────────────────── */
+const ORING_HOUSING = {
+  '1.78': [1.25, 2.5,  0.25],
+  '2.62': [2.05, 3.7,  0.25],
+  '3.53': [2.80, 4.9,  0.40],
+  '5.33': [4.30, 7.3,  0.75],
+  '6.99': [5.75, 9.7,  0.75]
+};
+
+/* Catalog entries [code, DI, DE] grouped by W */
+const ORING_CATALOG = {
+  '1.78': [
+    ['2-004',1.78,5.34],['2-005',2.57,6.13],['2-006',2.90,6.46],['2-007',3.68,7.24],
+    ['2-008',4.47,8.03],['2-009',5.28,8.84],['2-010',6.07,9.63],
+    ['2-011',7.65,11.21],['2-012',9.25,12.81],['2-013',10.82,14.38],['2-014',12.42,15.98],
+    ['2-015',14.00,17.56],['2-016',15.60,19.16],['2-017',17.17,20.73],['2-018',18.77,22.33],
+    ['2-019',20.35,23.91],['2-020',21.95,25.51],
+    ['2-021',23.52,27.08],['2-022',25.12,28.68],['2-023',26.70,30.26],['2-024',28.30,31.86],
+    ['2-025',29.87,33.43],['2-026',31.47,35.03],['2-027',33.05,36.61],['2-028',34.65,38.21],
+    ['2-029',37.82,41.38],['2-030',41.00,44.56],
+    ['2-031',44.17,47.73],['2-032',47.35,50.91],['2-033',50.52,54.08],['2-034',53.70,57.26],
+    ['2-035',56.87,60.43],['2-036',60.05,63.61],['2-037',63.22,66.78],['2-038',66.40,69.96],
+    ['2-039',69.57,73.13],['2-040',72.75,76.31],
+    ['2-041',75.92,79.48],['2-042',82.27,85.83],['2-043',88.62,92.18],['2-044',94.97,98.53],
+    ['2-045',101.32,104.88],['2-046',107.67,111.23],['2-047',114.02,117.58],
+    ['2-048',120.37,123.93],['2-049',126.72,130.28],['2-050',133.07,136.63]
+  ],
+  '2.62': [
+    ['2-102',1.24,6.48],['2-103',2.06,7.30],['2-104',2.84,8.08],['2-105',3.63,8.87],
+    ['2-106',4.42,9.66],['2-107',5.23,10.47],['2-108',6.02,11.26],
+    ['2-109',7.59,12.83],['2-110',9.19,14.43],['2-111',10.77,16.01],['2-112',12.37,17.61],
+    ['2-113',13.94,19.18],['2-114',15.54,20.78],
+    ['2-115',17.12,22.36],['2-116',18.72,23.96],['2-117',20.29,25.53],['2-118',21.89,27.13],
+    ['2-119',23.47,28.71],['2-120',25.07,30.31],['2-121',26.64,31.88],['2-122',28.24,33.48],
+    ['2-123',29.82,35.06],['2-124',31.42,36.66],['2-125',33.00,38.24],['2-126',34.59,39.83],
+    ['2-127',37.77,43.01],['2-128',39.34,44.58],
+    ['2-129',40.94,46.18],['2-130',42.52,47.76],['2-131',44.12,49.36],['2-132',45.69,50.93],
+    ['2-133',48.90,54.14],['2-134',50.47,55.71],['2-135',52.07,57.31],['2-136',53.64,58.88],
+    ['2-137',56.82,62.06],['2-138',58.42,63.66],['2-139',60.02,65.26],['2-140',61.60,66.84],
+    ['2-141',66.34,71.58],
+    ['2-142',69.52,74.76],['2-143',72.70,77.94],['2-144',75.87,81.11],['2-145',79.05,84.29],
+    ['2-146',82.22,87.46],['2-147',85.40,90.64],['2-148',88.57,93.81],['2-149',91.75,96.99],
+    ['2-150',94.92,100.16],['2-151',98.10,103.34],['2-152',101.27,106.51],['2-153',104.45,109.69],
+    ['2-154',107.62,112.86],
+    ['2-155',113.97,119.21],['2-156',120.32,125.56],['2-157',126.67,131.91],['2-158',133.02,138.26],
+    ['2-159',139.37,144.61],['2-160',145.72,150.96],['2-161',152.07,157.31],['2-162',158.42,163.66],
+    ['2-163',164.77,170.01],['2-164',171.12,176.36],
+    ['2-165',177.47,182.71],['2-166',183.82,189.06],['2-167',190.17,195.41],['2-168',196.52,201.76],
+    ['2-169',202.87,208.11],['2-170',209.22,214.46],['2-171',215.57,220.81],['2-172',221.92,227.16],
+    ['2-173',228.27,233.51],['2-174',234.62,239.86],['2-175',240.97,246.21],['2-176',247.32,252.56],
+    ['2-177',253.67,258.91],['2-178',260.02,265.26]
+  ],
+  '3.53': [
+    ['2-201',4.34,11.40],['2-202',5.94,13.00],['2-203',7.52,14.58],['2-204',9.12,16.18],
+    ['2-205',10.69,17.75],['2-206',12.29,19.35],['2-207',13.87,20.93],['2-208',15.47,22.53],
+    ['2-209',17.04,24.10],['2-210',18.64,25.70],['2-211',20.22,27.28],['2-212',21.82,28.88],
+    ['2-213',23.39,30.45],['2-214',24.99,32.05],
+    ['2-215',26.57,33.63],['2-216',28.17,35.23],['2-217',29.74,36.80],['2-218',31.34,38.40],
+    ['2-219',32.92,39.98],['2-220',34.52,41.58],
+    ['2-221',37.69,44.75],['2-222',40.87,47.93],['2-223',44.04,51.10],['2-224',47.22,54.28],
+    ['2-225',50.39,57.45],['2-226',53.57,60.63],['2-227',56.74,63.80],['2-228',59.92,66.98],
+    ['2-229',63.09,70.15],['2-230',66.27,73.33],['2-231',69.44,76.50],['2-232',72.62,79.68],
+    ['2-233',75.79,82.85],['2-234',78.97,86.03],['2-235',82.14,89.20],['2-236',85.32,92.38],
+    ['2-237',88.49,95.55],['2-238',91.67,98.73],['2-239',94.84,101.90],['2-240',98.02,105.08],
+    ['2-241',101.19,108.25],['2-242',104.37,111.43],
+    ['2-243',107.54,114.60],['2-244',110.72,117.78],['2-245',113.89,120.95],
+    ['2-246',120.24,127.30],['2-247',123.42,130.48],['2-248',126.59,133.65],['2-249',129.77,136.83],
+    ['2-250',132.94,140.00],['2-251',136.12,143.18],['2-252',139.29,146.35],['2-253',142.47,149.53],
+    ['2-254',145.64,152.70],['2-255',148.82,155.88],['2-256',152.00,159.06],
+    ['2-257',158.35,165.41],['2-258',164.69,171.75],['2-259',171.04,178.10],['2-260',177.39,184.45],
+    ['2-261',183.74,190.80],['2-262',190.09,197.15],['2-263',196.44,203.50],['2-264',202.79,209.85],
+    ['2-265',209.14,216.20],['2-266',215.49,222.55],['2-267',221.84,228.90],['2-268',228.19,235.25],
+    ['2-269',234.54,241.60],['2-270',240.89,247.95],['2-271',247.24,254.30],['2-272',253.59,260.65],
+    ['2-273',259.94,267.00],['2-274',266.29,273.35],['2-275',272.64,279.70],['2-276',278.99,286.05],
+    ['2-277',285.34,292.40],['2-278',291.69,298.75],['2-279',298.04,305.10],['2-280',304.39,311.45],
+    ['2-281',316.87,323.93],['2-282',329.57,336.63],['2-283',392.43,399.49],['2-284',456.06,463.12]
+  ],
+  '5.33': [
+    ['2-309',10.46,21.12],['2-310',12.07,22.73],['2-311',13.64,24.30],['2-312',15.24,25.90],
+    ['2-313',16.81,27.47],['2-314',18.42,29.08],['2-315',19.99,30.65],['2-316',21.59,32.25],
+    ['2-317',23.16,33.82],['2-318',24.77,35.43],['2-319',26.34,37.00],['2-320',27.94,38.60],
+    ['2-321',29.51,40.17],['2-322',31.12,41.78],
+    ['2-323',34.29,44.95],['2-324',37.47,48.13],['2-325',40.64,51.30],['2-326',43.82,54.48],
+    ['2-327',47.00,57.66],['2-328',50.17,60.83],['2-329',53.34,64.00],['2-330',56.52,67.18],
+    ['2-331',59.69,70.35],['2-332',62.87,73.53],['2-333',66.04,76.70],['2-334',69.22,79.88],
+    ['2-335',72.39,83.05],['2-336',75.57,86.23],['2-337',78.74,89.40],['2-338',81.92,92.58],
+    ['2-339',85.09,95.75],['2-340',88.27,98.93],['2-341',91.44,102.10],['2-342',94.62,105.28],
+    ['2-343',97.79,108.45],['2-344',100.97,111.63],['2-345',104.14,114.80],['2-346',107.32,117.98],
+    ['2-347',110.49,121.15],['2-348',113.67,124.33],['2-349',116.84,127.50],['2-350',120.02,130.68],
+    ['2-351',123.19,133.85],['2-352',126.37,137.03],['2-353',129.54,140.20],['2-354',132.72,143.38],
+    ['2-355',135.89,146.55],['2-356',139.07,149.73],['2-357',142.24,152.90],
+    ['2-358',148.59,159.25],['2-359',154.94,165.60],['2-360',161.29,171.95],['2-361',167.64,178.30],
+    ['2-362',173.99,184.65],['2-363',180.34,191.00],['2-364',186.69,197.35],['2-365',193.04,203.70],
+    ['2-366',199.39,210.05],['2-367',205.74,216.40],['2-368',212.09,222.75],
+    ['2-369',221.62,232.28],['2-370',231.14,241.80],['2-371',240.67,251.33],['2-372',250.19,260.85],
+    ['2-373',259.72,270.38],['2-374',269.24,279.90],['2-375',278.77,289.43],['2-376',288.29,298.95],
+    ['2-377',297.82,308.48],['2-378',307.34,317.00],['2-379',316.87,327.53],
+    ['2-380',329.57,340.23],['2-381',342.27,352.93],['2-382',354.97,365.63],['2-383',367.67,378.33],
+    ['2-384',380.37,391.03],['2-385',393.07,403.73],['2-386',405.26,415.92],['2-387',418.00,428.66],
+    ['2-388',430.66,441.32],['2-389',443.36,454.02],['2-390',456.06,466.72],
+    ['2-391',469.90,480.56],['2-392',482.60,493.26],['2-393',495.30,505.96],
+    ['2-394',544.14,554.80],['2-395',658.88,669.54]
+  ],
+  '6.99': [
+    ['2-425',113.67,127.65],['2-426',116.84,130.82],['2-427',120.02,134.00],['2-428',123.19,137.17],
+    ['2-429',126.37,140.35],['2-430',129.54,143.52],['2-431',132.72,146.70],['2-432',135.89,149.87],
+    ['2-433',139.07,153.05],['2-434',142.24,156.22],['2-435',145.42,159.40],['2-436',148.59,162.57],
+    ['2-437',151.77,165.75],['2-438',154.94,168.92],['2-439',158.12,172.10],['2-440',161.29,175.27],
+    ['2-441',164.47,178.45],['2-442',167.64,181.62],['2-443',170.82,184.80],['2-444',173.99,187.97],
+    ['2-445',177.17,191.15],['2-446',180.34,194.32],['2-447',183.52,197.50],['2-448',186.69,200.67],
+    ['2-449',189.87,203.85],['2-450',193.04,207.02],['2-451',196.22,210.20],['2-452',199.39,213.37],
+    ['2-453',202.57,216.55],['2-454',205.74,219.72],['2-455',208.92,222.90],['2-456',212.09,226.07],
+    ['2-457',215.27,229.25],['2-458',218.44,232.42],['2-459',221.62,235.60],['2-460',224.79,238.77],
+    ['2-461',227.97,241.95],['2-462',231.14,245.12],['2-463',234.32,248.30],['2-464',237.49,251.47],
+    ['2-465',240.67,254.65],['2-466',243.84,257.82],['2-467',247.02,261.00],['2-468',250.19,264.17],
+    ['2-469',253.37,267.35],['2-470',256.54,270.52],['2-471',259.72,273.70],['2-472',262.89,276.87],
+    ['2-473',266.07,280.05],['2-474',269.24,283.22],['2-475',272.42,286.40]
+  ]
+};
+
+function calcOring() {
+  const W    = document.getElementById('or-W').value;
+  const Dint = parseFloat(document.getElementById('or-Dint').value);
+  if (isNaN(Dint) || Dint < 0) {
+    document.getElementById('or-result').innerHTML = '<div class="result-warn">⚠ Introduce un D<sub>int</sub> válido</div>';
+    return;
+  }
+  const housing = ORING_HOUSING[W];
+  const catalog = ORING_CATALOG[W];
+  const L = housing[0], G = housing[1], R = housing[2];
+  const Dext = +(Dint + 2 * G).toFixed(2);
+
+  // Select first catalog entry with DI >= Dint
+  const entry = catalog.find(e => e[1] >= Dint);
+  if (!entry) {
+    document.getElementById('or-result').innerHTML = '<div class="result-warn">⚠ D<sub>int</sub> supera el mayor O-Ring disponible para W = ' + W + ' mm</div>';
+    return;
+  }
+  const [code, DI, DE] = entry;
+  const Wf = parseFloat(W);
+
+  document.getElementById('or-result').innerHTML = `
+    <div class="result-section-title">Alojamiento — W = ${W} mm · D<sub>int</sub> = ${Dint} mm</div>
+    <div class="result-grid" style="grid-template-columns:repeat(auto-fit,minmax(145px,1fr));">
+      <div class="result-cell"><div class="result-label">L — Profundidad</div><div class="result-value">${L}<span class="result-unit">mm</span></div></div>
+      <div class="result-cell"><div class="result-label">G — Ancho ranura</div><div class="result-value">${G}<span class="result-unit">mm</span></div></div>
+      <div class="result-cell"><div class="result-label">R — Radio esquina</div><div class="result-value">${R}<span class="result-unit">mm</span></div></div>
+      <div class="result-cell"><div class="result-label">D<sub>ext</sub> = D<sub>int</sub>+2G</div><div class="result-value">${Dext}<span class="result-unit">mm</span></div></div>
+    </div>
+    <div class="result-section-title" style="margin-top:1.25rem;">O-Ring seleccionado — Parker ${code}</div>
+    <div class="result-grid" style="grid-template-columns:repeat(auto-fit,minmax(145px,1fr));">
+      <div class="result-cell"><div class="result-label">Código Parker</div><div class="result-value" style="font-size:1.15rem;font-weight:700;">${code}</div></div>
+      <div class="result-cell"><div class="result-label">W sección</div><div class="result-value">${Wf}<span class="result-unit">mm</span></div></div>
+      <div class="result-cell"><div class="result-label">DI<sub>oring</sub></div><div class="result-value">${DI}<span class="result-unit">mm</span></div></div>
+      <div class="result-cell"><div class="result-label">DE<sub>oring</sub></div><div class="result-value">${DE}<span class="result-unit">mm</span></div></div>
+    </div>`;
+}
 </script>
