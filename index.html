@@ -423,7 +423,7 @@ select:focus, input:focus {
 <header class="hero">
   <div class="hero-badge">IAC — Departamento de Mecánica</div>
   <h1>Referencia Técnica</h1>
-  <p>Materiales · Tornillos DIN 912 · Tolerancias ISO 286 · Juntas Tóricas</p>
+  <p>Materiales · Tornillos DIN 912 · Tolerancias ISO 286 · Juntas Tóricas · Acabado Superf.</p>
 </header>
 
 <!-- SECTION NAV -->
@@ -432,6 +432,7 @@ select:focus, input:focus {
   <a href="#tornillos">Tornillos DIN 912</a>
   <a href="#tolerancias">Tolerancias ISO 286</a>
   <a href="#orings">Juntas Tóricas</a>
+  <a href="#acabado">Acabado Superf.</a>
 </nav>
 
 <!-- ═══════════════════════════════════════════════ -->
@@ -1310,4 +1311,137 @@ function calcOring() {
       <div class="result-cell"><div class="result-label">DE<sub>oring</sub></div><div class="result-value">${DE}<span class="result-unit">mm</span></div></div>
     </div>`;
 }
+</script>
+
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION 5 — ACABADO SUPERFICIAL                 -->
+<!-- ═══════════════════════════════════════════════ -->
+<section id="acabado">
+  <div class="sec-header">
+    <span class="sec-num">05</span>
+    <span class="sec-title">Acabado Superficial — ISO 1302</span>
+  </div>
+
+  <div class="card">
+    <div class="card-title">◈ Calculadora de Grado N</div>
+    <p style="font-size:0.85rem;color:var(--fg2);margin-bottom:1rem;">
+      Selecciona el grado de rugosidad <strong>N</strong> (ISO 1302). Obtendrás los valores
+      de rugosidad media <strong>Ra</strong>, altura total <strong>Rz</strong> y rugosidad
+      cuadrática media <strong>RMS</strong>, junto con los procesos de fabricación habituales
+      para ese grado.
+    </p>
+    <div class="calc-form" style="grid-template-columns:minmax(200px,260px) 1fr;">
+      <div class="form-group">
+        <label class="form-label">Grado de acabado</label>
+        <select id="ac-grado" onchange="calcAcabado()">
+          <option value="N1">N1 — Ra 0.025 µm (superacabado)</option>
+          <option value="N2">N2 — Ra 0.05 µm (lapeado)</option>
+          <option value="N3">N3 — Ra 0.1 µm (rectificado fino)</option>
+          <option value="N4">N4 — Ra 0.2 µm (rectificado cilíndrico)</option>
+          <option value="N5">N5 — Ra 0.4 µm (acabado fino)</option>
+          <option value="N6" selected>N6 — Ra 0.8 µm (fresado CNC fino)</option>
+          <option value="N7">N7 — Ra 1.6 µm (fresado CNC estándar)</option>
+          <option value="N8">N8 — Ra 3.2 µm (torneado/fresado general)</option>
+          <option value="N9">N9 — Ra 6.3 µm (torneado grueso)</option>
+          <option value="N10">N10 — Ra 12.5 µm (desbaste)</option>
+          <option value="N11">N11 — Ra 25 µm (desbaste grueso)</option>
+          <option value="N12">N12 — Ra 50 µm (corte en bruto)</option>
+        </select>
+      </div>
+    </div>
+    <div id="ac-result"></div>
+  </div>
+
+</section>
+
+<script>
+// ── ACABADO SUPERFICIAL ───────────────────────────────────────────────────────
+const AC_DATA = {
+  N1:  { ra: 0.025, procs: [ { name: 'RECTIFICADO', sub: 'Superacabado', app: 'Bloques patrón, superficies de metrología' } ] },
+  N2:  { ra: 0.05,  procs: [ { name: 'RECTIFICADO', sub: 'Lapeado', app: 'Sellos de precisión, asientos de válvula' } ] },
+  N3:  { ra: 0.1,   procs: [ { name: 'RECTIFICADO', sub: 'Rectificado fino', app: 'Carretes hidráulicos, vástagos' } ] },
+  N4:  { ra: 0.2,   procs: [ { name: 'RECTIFICADO', sub: 'Rectificado cilíndrico', app: 'Muñones de cigüeñal, perfiles de leva' } ] },
+  N5:  { ra: 0.4,   procs: [
+    { name: 'FRESADO',    sub: 'Pasada de acabado', app: 'Cavidades de precisión, caras datum' },
+    { name: 'TORNEADO',   sub: 'Pasada de acabado', app: 'Diámetros de sello, ranuras de O-ring' },
+    { name: 'RECTIFICADO',sub: 'Bruñido', app: 'Cilindros, asientos de camisas' }
+  ]},
+  N6:  { ra: 0.8,   procs: [
+    { name: 'FRESADO',    sub: 'Fresado CNC fino', app: 'Placas de fixture, superficies patrón' },
+    { name: 'TORNEADO',   sub: 'Torneado CNC fino', app: 'Muñones de rodamiento, ajustes de husillo' },
+    { name: 'RECTIFICADO',sub: 'Rectificado plano', app: 'Guías de máquina, superficies de deslizamiento' },
+    { name: 'CORTE LÁSER',sub: 'Corte láser fino', app: 'Gabinetes de lámina delgada, calzas' }
+  ]},
+  N7:  { ra: 1.6,   procs: [
+    { name: 'FRESADO',    sub: 'Fresado CNC estándar', app: 'Planos maquinados, interfaces de montaje' },
+    { name: 'TORNEADO',   sub: 'Torneado CNC estándar', app: 'Ejes, espaciadores, espigas' },
+    { name: 'CORTE LÁSER',sub: 'Corte láser estándar', app: 'Paneles de lámina, brackets cortados' }
+  ]},
+  N8:  { ra: 3.2,   procs: [
+    { name: 'FRESADO',    sub: 'Fresado por defecto', app: 'Brackets, carcasas, tapas' },
+    { name: 'TORNEADO',   sub: 'Torneado general', app: 'Bujes, adaptadores, collares' },
+    { name: 'CORTE LÁSER',sub: 'Corte láser de producción', app: 'Marcos y placas estructurales de lámina' }
+  ]},
+  N9:  { ra: 6.3,   procs: [
+    { name: 'FRESADO',    sub: 'Fresado grueso', app: 'Colados/forjados pre-maquinados' },
+    { name: 'TORNEADO',   sub: 'Torneado grueso', app: 'Material pesado, torneado de gran OD' },
+    { name: 'CORTE LÁSER',sub: 'Corte láser rápido placa gruesa', app: 'Bordes de placa gruesa, corte pesado' }
+  ]},
+  N10: { ra: 12.5,  procs: [ { name: 'FRESADO', sub: 'Desbaste / arranque', app: 'Remoción de material en bruto' } ] },
+  N11: { ra: 25,    procs: [] },
+  N12: { ra: 50,    procs: [] }
+};
+
+function calcAcabado() {
+  const grado = document.getElementById('ac-grado').value;
+  const d = AC_DATA[grado];
+  const ra  = d.ra;
+  const rz  = parseFloat((ra * 4).toPrecision(3));
+  const rms = parseFloat((ra * 1.11).toPrecision(3));
+
+  let procsHtml = '';
+  if (d.procs.length > 0) {
+    const procColors = {
+      'FRESADO':     { bg: 'var(--blue-light)',   border: 'var(--blue-mid)',  text: 'var(--blue)' },
+      'TORNEADO':    { bg: 'var(--success-bg)',    border: 'var(--success)',   text: 'var(--success)' },
+      'RECTIFICADO': { bg: 'var(--warn-bg)',       border: 'var(--warn)',      text: 'var(--warn)' },
+      'CORTE LÁSER': { bg: 'var(--bg3)',           border: 'var(--border)',    text: 'var(--fg2)' }
+    };
+    procsHtml = '<div class="result-section-title" style="margin-top:1.25rem;">Procesos de fabricación habituales</div>';
+    procsHtml += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.65rem;margin-top:0.75rem;">';
+    for (const p of d.procs) {
+      const c = procColors[p.name] || procColors['CORTE LÁSER'];
+      procsHtml += `<div style="background:${c.bg};border:1px solid ${c.border};border-left:3px solid ${c.text};border-radius:8px;padding:0.75rem 1rem;">
+        <div style="font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:${c.text};margin-bottom:.3rem;">${p.name}</div>
+        <div style="font-family:var(--mono);font-size:0.82rem;font-weight:600;color:var(--fg);margin-bottom:.2rem;">${p.sub}</div>
+        <div style="font-size:0.78rem;color:var(--fg2);">${p.app}</div>
+      </div>`;
+    }
+    procsHtml += '</div>';
+  } else {
+    procsHtml = '<div class="result-section-title" style="margin-top:1.25rem;">Procesos de fabricación habituales</div><div class="result-warn">Sin proceso de mecanizado específico para este grado — corresponde a material en bruto o estado de suministro.</div>';
+  }
+
+  document.getElementById('ac-result').innerHTML = `
+    <div class="result-section-title">Grado ${grado} — Ra = ${ra} µm</div>
+    <div class="result-grid" style="grid-template-columns:repeat(auto-fit,minmax(145px,1fr));">
+      <div class="result-cell">
+        <div class="result-label">Ra — Rugosidad media</div>
+        <div class="result-value">${ra}<span class="result-unit">µm</span></div>
+      </div>
+      <div class="result-cell">
+        <div class="result-label">Rz — Altura total (≈ Ra×4)</div>
+        <div class="result-value">${rz}<span class="result-unit">µm</span></div>
+      </div>
+      <div class="result-cell">
+        <div class="result-label">RMS — Cuadrática media (≈ Ra×1.11)</div>
+        <div class="result-value">${rms}<span class="result-unit">µm</span></div>
+      </div>
+    </div>
+    ${procsHtml}`;
+}
+
+// Init on load
+window.addEventListener('DOMContentLoaded', calcAcabado);
 </script>
