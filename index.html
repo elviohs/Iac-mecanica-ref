@@ -512,7 +512,7 @@ select:focus, input:focus {
         <label class="form-label">Clase de material</label>
         <select id="bolt-class">
           <option value="5.6">5.6</option>
-          <option value="6.5">6.5</option>
+          <option value="6.8">6.8</option>
           <option value="8.8" selected>8.8</option>
           <option value="10.9">10.9</option>
           <option value="12.9">12.9</option>
@@ -658,9 +658,9 @@ select:focus, input:focus {
 const CRYO = {
   Al: {
     name: 'Al 6061-T6',
-    K:  { type:'log10', c:[0.07981,1.0957,-0.07277,0.08084,0.02803,-0.09464,0.04179,-0.00571,0], range:[4,300] },
+    K:  { type:'log10', c:[0.07918,1.0957,-0.07277,0.08084,0.02803,-0.09464,0.04179,-0.00571,0], range:[4,300] },
     S:  { type:'log10', c:[46.6467,-314.292,866.662,-1298.3,1162.27,-637.795,210.351,-38.3094,2.96344], range:[4,300] },
-    dL: { type:'poly',  c:[-412.77,-0.30389,0.0087696,-9.9821e-6,0], scale:1e-5, range:[18,300] },
+    dL: { type:'poly',  c:[-412.77,-0.30389,0.0087696,-9.9821e-6,0], Tlow:18, flatLo:-415.45, scale:1e-5, range:[4,300] },
     E:  { type:'poly',  c:[77.71221,0.01030646,-0.00029241,8.9936e-7,-1.0709e-9], range:[2,295] }
   },
   SS304: {
@@ -702,15 +702,17 @@ const CRYO = {
     name: 'Indio (In)',
     K:  { type:'log10', c:[-2.4259351,12.613611,-46.472893,104.64717,-127.1863,88.805612,-35.915625,7.8307989,-0.71218931], range:[4,295] },
     S:  null,
-    dL: { type:'poly',  c:[-52.65,0.1009,0.0008395,-1.973e-6,8.794e-11], scale:1e-5, range:[80,300] },
-    E:  { type:'poly',  c:[141.565,0.0254435,-0.00100842,6.72797e-6,-1.0823e-8], range:[3,298] }
+    dL: null, // Sin datos NIST para Indio — coeficientes anteriores correspondían a Invar (Fe-36Ni), no a Indio
+    E:  null  // Sin datos NIST para Indio — NIST solo tiene calor específico (cp) para este material
   },
   Invar: {
     name: 'Invar (Fe-36Ni)',
     K:  { type:'log10', c:[-2.7064,8.5191,-15.923,18.276,-11.9116,4.40318,-0.86018,0.068508,0], range:[4,300] },
     S:  { type:'log10', c:[31.88256,-166.51949,352.01879,-393.44232,259.98072,-104.61429,24.99276,-3.20792,0.16503], range:[4,300] },
-    dL: { type:'poly',  c:[-2120,-0.8201,0.06161,-0.0003171,6.85e-7], scale:1e-5, range:[4,300] },
-    E:  { type:'2pt',   T1:20, V1:4.1, T2:300, V2:0.7 }
+    dL: { type:'poly',  c:[-52.65,0.1009,8.395e-4,-1.973e-6,8.794e-11], Tlow:80, flatLo:-40, scale:1e-5, range:[4,300] },
+    // dL: NIST trc.nist.gov/cryogenics/materials/Invar(Fe-36Ni)/Invar_rev.htm — rango 4–300 K, Tlow=80 K (constante f=-40 para T<80 K)
+    E:  { type:'poly',  c:[141.565,0.0254435,-0.00100842,6.72797e-6,-1.0823e-8], range:[3,298] }
+    // E:  NIST trc.nist.gov/cryogenics/materials/Invar(Fe-36Ni)/Invar_rev.htm — rango 3–298 K, unidades GPa
   },
   PTFE: {
     name: 'Teflón (PTFE)',
@@ -753,11 +755,18 @@ function eval2pt(T, T1, V1, T2, V2) {
 }
 function evalProp(prop, T) {
   if (!prop) return null;
-  const {type, c, range, scale, T1, V1, T2, V2} = prop;
+  const {type, c, range, scale, T1, V1, T2, V2, Tlow, flatLo} = prop;
   const warn = range && (T < range[0] || T > range[1]);
   let val = null;
   if (type === 'log10') val = evalLog10Poly(T, c);
-  else if (type === 'poly') val = evalPoly(T, c) * (scale || 1);
+  else if (type === 'poly') {
+    // Para materiales con condición de saturación bajo Tlow (p.ej. NIST dL de Invar y Al6061)
+    if (Tlow !== undefined && T < Tlow) {
+      val = (flatLo !== undefined ? flatLo : 0) * (scale || 1);
+    } else {
+      val = evalPoly(T, c) * (scale || 1);
+    }
+  }
   else if (type === '2pt') val = eval2pt(T, T1, V1, T2, V2);
   return { val, warn, range };
 }
@@ -773,21 +782,29 @@ function fmtVal(v, digits) {
   return v.toExponential(3);
 }
 
-/* Integración trapezoidal de una propiedad desde T_lo hasta T_hi */
+/* Integración trapezoidal de una propiedad desde T_lo hasta T_hi.
+   Si el rango del polinomio es más estrecho que el intervalo de integración,
+   se recorta al límite válido y se devuelve truncatedAt para avisar al usuario. */
 function integrateNumeric(prop, T_lo, T_hi) {
   if (!prop || T_lo >= T_hi) return { val: null, warn: false, range: prop ? prop.range : null };
+  let lo = T_lo, hi = T_hi, truncatedAt = null;
+  if (prop.range) {
+    if (lo < prop.range[0]) lo = prop.range[0];
+    if (hi > prop.range[1]) { truncatedAt = prop.range[1]; hi = prop.range[1]; }
+  }
+  if (lo >= hi) return { val: null, warn: true, range: prop.range, truncatedAt };
   const nSteps = 400;
-  const h = (T_hi - T_lo) / nSteps;
+  const h = (hi - lo) / nSteps;
   let sum = 0, anyWarn = false;
   for (let i = 0; i <= nSteps; i++) {
-    const t = T_lo + i * h;
+    const t = lo + i * h;
     const r = evalProp(prop, t);
     if (r && r.val !== null && isFinite(r.val)) {
       sum += ((i === 0 || i === nSteps) ? 0.5 : 1) * r.val;
       if (r.warn) anyWarn = true;
     }
   }
-  return { val: sum * h, warn: anyWarn, range: prop.range };
+  return { val: sum * h, warn: anyWarn, range: prop.range, truncatedAt };
 }
 
 function calcCryo() {
@@ -826,11 +843,21 @@ function calcCryo() {
     let valHtml, warnNote = '';
     if (!res || res.val === null || res.val === undefined) {
       valHtml = '<span class="result-na">N/D</span>';
+      // Mostrar rango válido cuando no hay valor (sin datos o fuera de rango)
+      if (res && res.range) {
+        if (res.truncatedAt !== undefined) {
+          warnNote = `⚠ T fuera del rango polinomial (válido: ${res.range[0]}–${res.range[1]} K) — sin resultado`;
+        } else if (!res.warn) {
+          warnNote = `Sin datos verificados para este material/propiedad`;
+        }
+      }
     } else {
       const fv = fmtVal(res.val);
       valHtml = `${fv}<span class="result-unit">${unit}</span>`;
-      if (res.warn) {
-        warnNote = `⚠ T parcialmente fuera del rango polinomial`;
+      if (res.truncatedAt) {
+        warnNote = `⚠ Rango polinomial limitado hasta ${res.truncatedAt} K — integral recortada a [${Math.round(T_lo)} → ${res.truncatedAt}] K`;
+      } else if (res.warn) {
+        warnNote = `⚠ T parcialmente fuera del rango polinomial (válido: ${res.range[0]}–${res.range[1]} K)`;
       }
     }
     html += `<div class="result-cell">
@@ -849,21 +876,21 @@ function calcCryo() {
    BOLT DATA — DIN 912
    ──────────────────────────────────────────────── */
 const BOLTS = {
-  M3:  { paso:0.5,  de:2.94, dp:2.68, dn:2.39, dr:2.53, An:4.48,  Ar:5.03,  D:5.5, allen:2.5, ll:5.5,  h:2.4,  f:{'5.6':[150,111,0.06],'6.5':[156,111,0.06],'8.8':[321,230,0.12],'10.9':[402,322,0.17],'12.9':[482,387,0.20]} },
-  M4:  { paso:0.7,  de:3.85, dp:3.55, dn:3.14, dr:3.34, An:7.75,  Ar:8.78,  D:7,   allen:3,   ll:7,    h:3.2,  f:{'5.6':[260,195,0.15],'6.5':[272,195,0.15],'8.8':[560,390,0.29],'10.9':[790,545,0.41],'12.9':[950,655,0.49]} },
-  M5:  { paso:0.8,  de:4.87, dp:4.48, dn:4.02, dr:4.25, An:12.69, Ar:14.19, D:8.5, allen:4,   ll:9,    h:4,    f:{'5.6':[420,320,0.30],'6.5':[440,320,0.30],'8.8':[910,635,0.60],'10.9':[1280,895,0.85],'12.9':[1530,1070,1.00]} },
-  M6:  { paso:1,    de:5.88, dp:5.35, dn:4.73, dr:5.04, An:17.59, Ar:19.97, D:10,  allen:5,   ll:10,   h:5,    f:{'5.6':[600,450,0.50],'6.5':[620,450,0.50],'8.8':[1290,900,1.00],'10.9':[1810,1260,1.40],'12.9':[2170,1510,1.70]} },
-  M8:  { paso:1.25, de:7.80, dp:7.19, dn:6.47, dr:6.83, An:32.84, Ar:36.61, D:13,  allen:6,   ll:13,   h:6.5,  f:{'5.6':[1090,820,1.25],'6.5':[1135,820,1.25],'8.8':[2340,1650,2.50],'10.9':[3290,2320,3.50],'12.9':[3950,2790,4.10]} },
-  M10: { paso:1.5,  de:9.78, dp:9.03, dn:8.16, dr:8.59, An:52.31, Ar:58.00, D:16,  allen:8,   ll:17,   h:8,    f:{'5.6':[1740,1310,2.45],'6.5':[1798,1310,2.45],'8.8':[3710,2620,4.90],'10.9':[5200,3690,6.90],'12.9':[6250,4430,8.30]} },
-  M12: { paso:1.75, de:11.80,dp:10.86,dn:9.85, dr:10.36,An:76.25, Ar:84.26, D:18,  allen:10,  ll:19,   h:9.5,  f:{'5.6':[2530,1900,4.20],'6.5':[2612,1900,4.20],'8.8':[5400,3830,8.60],'10.9':[7600,5400,12.0],'12.9':[9100,6450,14.5]} },
-  M14: { paso:2,    de:13.80,dp:12.70,dn:11.55,dr:12.12,An:104.70,Ar:115.44,D:21,  allen:12,  ll:22,   h:11,   f:{'5.6':[3450,2600,6.80],'6.5':[3578,2600,6.80],'8.8':[7350,5250,13.5],'10.9':[10350,7400,19.0],'12.9':[12400,8850,23.0]} },
-  M16: { paso:2,    de:15.78,dp:14.70,dn:13.55,dr:14.12,An:144.12,Ar:156.67,D:24,  allen:14,  ll:24,   h:13,   f:{'5.6':[4710,3550,10.5],'6.5':[4856,3550,10.5],'8.8':[10000,7300,21.0],'10.9':[14100,10200,29.5],'12.9':[17000,12300,35.5]} },
-  M18: { paso:2.5,  de:17.78,dp:16.38,dn:14.93,dr:15.65,An:175.14,Ar:192.47,D:27,  allen:14,  ll:27,   h:15,   f:{'5.6':[5760,4320,14.5],'6.5':[5966,4320,14.5],'8.8':[12300,8800,29.0],'10.9':[17300,12400,40.5],'12.9':[20700,14800,48.5]} },
-  M20: { paso:2.5,  de:19.76,dp:18.38,dn:16.93,dr:17.65,An:225.19,Ar:244.79,D:30,  allen:17,  ll:30,   h:16,   f:{'5.6':[7350,5500,20.0],'6.5':[7590,5500,20.0],'8.8':[15700,11400,41.0],'10.9':[22000,16000,58.0],'12.9':[26500,19200,69.0]} },
-  M22: { paso:2.5,  de:21.76,dp:20.38,dn:18.93,dr:19.65,An:281.53,Ar:303.40,D:33,  allen:17,  ll:32,   h:17,   f:{'5.6':[9090,6800,26.5],'6.5':[9400,6800,26.5],'8.8':[19400,14100,55.0],'10.9':[27300,19900,78.0],'12.9':[32700,23900,93.0]} },
-  M24: { paso:3,    de:23.76,dp:22.05,dn:20.32,dr:21.19,An:324.26,Ar:352.49,D:36,  allen:19,  ll:36,   h:18,   f:{'5.6':[10590,7900,34.5],'6.5':[10930,7900,34.5],'8.8':[22600,16400,71.0],'10.9':[31800,23000,100.0],'12.9':[38100,27600,120.0]} },
-  M27: { paso:3,    de:26.70,dp:25.05,dn:23.32,dr:24.19,An:427.08,Ar:459.39,D:40,  allen:19,  ll:41,   h:20,   f:{'5.6':[13770,10300,51.0],'6.5':[14240,10300,51.0],'8.8':[29400,21500,105.0],'10.9':[41300,30200,150.0],'12.9':[49600,36300,180.0]} },
-  M30: { paso:3.5,  de:29.70,dp:27.73,dn:25.71,dr:26.72,An:518.99,Ar:560.59,D:45,  allen:22,  ll:46,   h:22,   f:{'5.6':[16830,12600,68.0],'6.5':[17380,12600,68.0],'8.8':[35900,26200,145.0],'10.9':[50500,36800,200.0],'12.9':[60600,44200,240.0]} }
+  M3:  { paso:0.5,  de:2.94, dp:2.68, dn:2.39, dr:2.53, An:4.48,  Ar:5.03,  D:5.5, allen:2.5, ll:5.5,  h:2.4,  f:{'5.6':[150,111,0.06],'6.8':[156,111,0.06],'8.8':[321,230,0.12],'10.9':[402,322,0.17],'12.9':[482,387,0.20]} },
+  M4:  { paso:0.7,  de:3.85, dp:3.55, dn:3.14, dr:3.34, An:7.75,  Ar:8.78,  D:7,   allen:3,   ll:7,    h:3.2,  f:{'5.6':[260,195,0.15],'6.8':[272,195,0.15],'8.8':[560,390,0.29],'10.9':[790,545,0.41],'12.9':[950,655,0.49]} },
+  M5:  { paso:0.8,  de:4.87, dp:4.48, dn:4.02, dr:4.25, An:12.69, Ar:14.19, D:8.5, allen:4,   ll:9,    h:4,    f:{'5.6':[420,320,0.30],'6.8':[440,320,0.30],'8.8':[910,635,0.60],'10.9':[1280,895,0.85],'12.9':[1530,1070,1.00]} },
+  M6:  { paso:1,    de:5.88, dp:5.35, dn:4.73, dr:5.04, An:17.59, Ar:19.97, D:10,  allen:5,   ll:10,   h:5,    f:{'5.6':[600,450,0.50],'6.8':[620,450,0.50],'8.8':[1290,900,1.00],'10.9':[1810,1260,1.40],'12.9':[2170,1510,1.70]} },
+  M8:  { paso:1.25, de:7.80, dp:7.19, dn:6.47, dr:6.83, An:32.84, Ar:36.61, D:13,  allen:6,   ll:13,   h:6.5,  f:{'5.6':[1090,820,1.25],'6.8':[1135,820,1.25],'8.8':[2340,1650,2.50],'10.9':[3290,2320,3.50],'12.9':[3950,2790,4.10]} },
+  M10: { paso:1.5,  de:9.78, dp:9.03, dn:8.16, dr:8.59, An:52.31, Ar:58.00, D:16,  allen:8,   ll:17,   h:8,    f:{'5.6':[1740,1310,2.45],'6.8':[1798,1310,2.45],'8.8':[3710,2620,4.90],'10.9':[5200,3690,6.90],'12.9':[6250,4430,8.30]} },
+  M12: { paso:1.75, de:11.80,dp:10.86,dn:9.85, dr:10.36,An:76.25, Ar:84.26, D:18,  allen:10,  ll:19,   h:9.5,  f:{'5.6':[2530,1900,4.20],'6.8':[2612,1900,4.20],'8.8':[5400,3830,8.60],'10.9':[7600,5400,12.0],'12.9':[9100,6450,14.5]} },
+  M14: { paso:2,    de:13.80,dp:12.70,dn:11.55,dr:12.12,An:104.70,Ar:115.44,D:21,  allen:12,  ll:22,   h:11,   f:{'5.6':[3450,2600,6.80],'6.8':[3578,2600,6.80],'8.8':[7350,5250,13.5],'10.9':[10350,7400,19.0],'12.9':[12400,8850,23.0]} },
+  M16: { paso:2,    de:15.78,dp:14.70,dn:13.55,dr:14.12,An:144.12,Ar:156.67,D:24,  allen:14,  ll:24,   h:13,   f:{'5.6':[4710,3550,10.5],'6.8':[4856,3550,10.5],'8.8':[10000,7300,21.0],'10.9':[14100,10200,29.5],'12.9':[17000,12300,35.5]} },
+  M18: { paso:2.5,  de:17.78,dp:16.38,dn:14.93,dr:15.65,An:175.14,Ar:192.47,D:27,  allen:14,  ll:27,   h:15,   f:{'5.6':[5760,4320,14.5],'6.8':[5966,4320,14.5],'8.8':[12300,8800,29.0],'10.9':[17300,12400,40.5],'12.9':[20700,14800,48.5]} },
+  M20: { paso:2.5,  de:19.76,dp:18.38,dn:16.93,dr:17.65,An:225.19,Ar:244.79,D:30,  allen:17,  ll:30,   h:16,   f:{'5.6':[7350,5500,20.0],'6.8':[7590,5500,20.0],'8.8':[15700,11400,41.0],'10.9':[22000,16000,58.0],'12.9':[26500,19200,69.0]} },
+  M22: { paso:2.5,  de:21.76,dp:20.38,dn:18.93,dr:19.65,An:281.53,Ar:303.40,D:33,  allen:17,  ll:32,   h:17,   f:{'5.6':[9090,6800,26.5],'6.8':[9400,6800,26.5],'8.8':[19400,14100,55.0],'10.9':[27300,19900,78.0],'12.9':[32700,23900,93.0]} },
+  M24: { paso:3,    de:23.76,dp:22.05,dn:20.32,dr:21.19,An:324.26,Ar:352.49,D:36,  allen:19,  ll:36,   h:18,   f:{'5.6':[10590,7900,34.5],'6.8':[10930,7900,34.5],'8.8':[22600,16400,71.0],'10.9':[31800,23000,100.0],'12.9':[38100,27600,120.0]} },
+  M27: { paso:3,    de:26.70,dp:25.05,dn:23.32,dr:24.19,An:427.08,Ar:459.39,D:40,  allen:19,  ll:41,   h:20,   f:{'5.6':[13770,10300,51.0],'6.8':[14240,10300,51.0],'8.8':[29400,21500,105.0],'10.9':[41300,30200,150.0],'12.9':[49600,36300,180.0]} },
+  M30: { paso:3.5,  de:29.70,dp:27.73,dn:25.71,dr:26.72,An:518.99,Ar:560.59,D:45,  allen:22,  ll:46,   h:22,   f:{'5.6':[16830,12600,68.0],'6.8':[17380,12600,68.0],'8.8':[35900,26200,145.0],'10.9':[50500,36800,200.0],'12.9':[60600,44200,240.0]} }
 };
 
 /* DIN 125, DIN 9021, DIN 934  [d1, d2, h] / [s, m] */
@@ -890,7 +917,8 @@ function calcBolt() {
   const cls  = document.getElementById('bolt-class').value;
   const b = BOLTS[size];
   if (!b) return;
-  const [Rt, Fv, Pa] = b.f[cls];
+  const [Rt, Fv, Pa_kgm] = b.f[cls];
+  const Pa = (Pa_kgm * 9.81).toFixed(1);  // conversión kg·m → N·m (1 kgf·m = 9.81 N·m)
   const Rc = Math.round(Rt * 0.57);
   const bs = BOLT_STD[size] || null;
 
@@ -914,7 +942,7 @@ function calcBolt() {
       <div class="result-cell"><div class="result-label">R<sub>t</sub> — Carga de rotura</div><div class="result-value">${Rt.toLocaleString('es')}<span class="result-unit">kg</span></div></div>
       <div class="result-cell"><div class="result-label">R<sub>c</sub> — Cortante (×0.57)</div><div class="result-value">${Rc.toLocaleString('es')}<span class="result-unit">kg</span></div></div>
       <div class="result-cell"><div class="result-label">F<sub>v</sub> — Carga de vástago</div><div class="result-value">${Fv.toLocaleString('es')}<span class="result-unit">kg</span></div></div>
-      <div class="result-cell"><div class="result-label">P<sub>a</sub> — Par de apriete</div><div class="result-value">${Pa}<span class="result-unit">kg·m</span></div></div>
+      <div class="result-cell"><div class="result-label">P<sub>a</sub> — Par de apriete<br><span style="font-size:9px;font-weight:normal;opacity:0.7;">μ ≈ 0.12 (seco/acero)</span></div><div class="result-value">${Pa}<span class="result-unit">N·m</span></div></div>
     </div>
     ${bs ? `
     <div class="result-section-title" style="margin-top:1.25rem;">Arandela DIN 125 — ${size}</div>
