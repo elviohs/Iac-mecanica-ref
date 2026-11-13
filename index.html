@@ -452,7 +452,8 @@ select:focus, input:focus {
       Los resultados de <strong>K</strong> y <strong>S</strong> son las propiedades
       <strong>integradas desde 298 K (ambiente) hasta T</strong> — útiles para calcular
       cargas térmicas (Q/A·L = ∫K dT) y entalpía de enfriamiento (ΔH = ∫S dT).
-      <strong>ΔL</strong> es la contracción relativa integrada desde 293 K.
+      <strong>ΔL/L</strong> es la contracción relativa referida a 293 K, que es la referencia de los ajustes NIST
+      (no a 298 K como las integrales; la diferencia entre ambas referencias es despreciable frente a la contracción hasta criogenia).
       <strong>E</strong> es el módulo de Young puntual a la temperatura seleccionada.
     </p>
     <div class="calc-form">
@@ -700,7 +701,7 @@ const CRYO = {
   },
   In: {
     name: 'Indio (In)',
-    K:  { type:'log10', c:[-2.4259351,12.613611,-46.472893,104.64717,-127.1863,88.805612,-35.915625,7.8307989,-0.71218931], range:[4,295] },
+    K:  null, // Sin datos NIST para Indio — el polinomio anterior no procede de NIST (daba 228 W/(m·K) a 295 K; el valor real es ~80)
     S:  null,
     dL: null, // Sin datos NIST para Indio — coeficientes anteriores correspondían a Invar (Fe-36Ni), no a Indio
     E:  null  // Sin datos NIST para Indio — NIST solo tiene calor específico (cp) para este material
@@ -783,16 +784,17 @@ function fmtVal(v, digits) {
 }
 
 /* Integración trapezoidal de una propiedad desde T_lo hasta T_hi.
-   Si el rango del polinomio es más estrecho que el intervalo de integración,
-   se recorta al límite válido y se devuelve truncatedAt para avisar al usuario. */
+   Si el rango del polinomio es más estrecho que el intervalo pedido, se recorta
+   al rango válido y se devuelve truncLo / truncHi (límite efectivo usado) para
+   avisar al usuario. El recorte se marca en AMBOS extremos. */
 function integrateNumeric(prop, T_lo, T_hi) {
   if (!prop || T_lo >= T_hi) return { val: null, warn: false, range: prop ? prop.range : null };
-  let lo = T_lo, hi = T_hi, truncatedAt = null;
+  let lo = T_lo, hi = T_hi, truncLo = null, truncHi = null;
   if (prop.range) {
-    if (lo < prop.range[0]) lo = prop.range[0];
-    if (hi > prop.range[1]) { truncatedAt = prop.range[1]; hi = prop.range[1]; }
+    if (lo < prop.range[0]) { truncLo = prop.range[0]; lo = prop.range[0]; }
+    if (hi > prop.range[1]) { truncHi = prop.range[1]; hi = prop.range[1]; }
   }
-  if (lo >= hi) return { val: null, warn: true, range: prop.range, truncatedAt };
+  if (lo >= hi) return { val: null, warn: true, range: prop.range, truncLo, truncHi, lo, hi };
   const nSteps = 400;
   const h = (hi - lo) / nSteps;
   let sum = 0, anyWarn = false;
@@ -804,7 +806,7 @@ function integrateNumeric(prop, T_lo, T_hi) {
       if (r.warn) anyWarn = true;
     }
   }
-  return { val: sum * h, warn: anyWarn, range: prop.range, truncatedAt };
+  return { val: sum * h, warn: anyWarn, range: prop.range, truncLo, truncHi, lo, hi };
 }
 
 function calcCryo() {
@@ -832,7 +834,7 @@ function calcCryo() {
     { label:'∫S dT — Entalpía ΔH',            unit:'J/kg',  res: Sint,
       sub: `Energía de enfriamiento por kg` },
     { label:'ΔL/L — Contracción térmica',      unit:'m/m',  res: dL,
-      sub: `Integrada desde 293 K hasta ${T} K` },
+      sub: `(L<sub>T</sub> − L<sub>293</sub>)/L<sub>293</sub> — referencia 293 K (definición NIST)` },
     { label:'E — Módulo de Young',              unit:'GPa',  res: E,
       sub: `Valor puntual a ${T} K` }
   ];
@@ -841,23 +843,27 @@ function calcCryo() {
   html += '<div class="result-grid">';
   cells.forEach(({label, unit, res, sub}) => {
     let valHtml, warnNote = '';
-    if (!res || res.val === null || res.val === undefined) {
+    const isInt = res && ('truncLo' in res);          // resultado de una integral
+    if (!res) {
+      // La propiedad no existe para este material
       valHtml = '<span class="result-na">N/D</span>';
-      // Mostrar rango válido cuando no hay valor (sin datos o fuera de rango)
-      if (res && res.range) {
-        if (res.truncatedAt !== undefined) {
-          warnNote = `⚠ T fuera del rango polinomial (válido: ${res.range[0]}–${res.range[1]} K) — sin resultado`;
-        } else if (!res.warn) {
-          warnNote = `Sin datos verificados para este material/propiedad`;
-        }
-      }
+      warnNote = `Sin datos verificados para este material/propiedad`;
+    } else if (isInt && res.truncHi !== null) {
+      // Recorte por ARRIBA: falta el tramo cercano a ambiente, que domina la integral → no se muestra
+      valHtml = '<span class="result-na">N/D</span>';
+      warnNote = `⚠ Polinomio válido solo en ${res.range[0]}–${res.range[1]} K: no cubre ${Math.round(T_lo)} → ${Math.round(T_hi)} K — sin resultado`;
+    } else if (res.val === null || res.val === undefined) {
+      valHtml = '<span class="result-na">N/D</span>';
+      if (res.range) warnNote = `⚠ T fuera del rango polinomial (válido: ${res.range[0]}–${res.range[1]} K) — sin resultado`;
     } else {
       const fv = fmtVal(res.val);
       valHtml = `${fv}<span class="result-unit">${unit}</span>`;
-      if (res.truncatedAt) {
-        warnNote = `⚠ Rango polinomial limitado hasta ${res.truncatedAt} K — integral recortada a [${Math.round(T_lo)} → ${res.truncatedAt}] K`;
+      if (isInt && res.truncLo !== null) {
+        // Recorte por ABAJO: se muestra el valor, pero indicando el intervalo realmente integrado
+        sub = `Integral ${res.lo} K → ${Math.round(res.hi)} K (recortada)`;
+        warnNote = `⚠ Polinomio válido desde ${res.truncLo} K — tramo ${Math.round(T_lo)} → ${res.truncLo} K no incluido`;
       } else if (res.warn) {
-        warnNote = `⚠ T parcialmente fuera del rango polinomial (válido: ${res.range[0]}–${res.range[1]} K)`;
+        warnNote = `⚠ T fuera del rango polinomial (válido: ${res.range[0]}–${res.range[1]} K)`;
       }
     }
     html += `<div class="result-cell">
